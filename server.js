@@ -9,12 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const CHATS_DIR = './chats';
 
-// চ্যাট ফোল্ডার তৈরি করুন
 if (!fs.existsSync(CHATS_DIR)) {
   fs.mkdirSync(CHATS_DIR);
 }
 
-// ===================== ইউজার আইডি ফাংশন =====================
 function getUserId(req) {
   let userId = req.headers['x-user-id'];
   if (!userId) {
@@ -23,7 +21,6 @@ function getUserId(req) {
   return userId;
 }
 
-// ===================== ফাইল অপারেশন =====================
 function getUserChatsFile(userId) {
   return path.join(CHATS_DIR, `${userId}.json`);
 }
@@ -61,26 +58,20 @@ function generateUUID() {
   return crypto.randomUUID();
 }
 
-// ===================== মিডলওয়্যার =====================
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname)));
 
-// ===================== API রাউট =====================
-
-// সব চ্যাট পাওয়া
 app.get('/api/chats', (req, res) => {
   try {
     const userId = getUserId(req);
     const chats = readUserChats(userId);
     res.json(chats);
   } catch (error) {
-    console.error('Error fetching chats:', error);
     res.status(500).json({ error: 'Failed to fetch chats' });
   }
 });
 
-// নতুন চ্যাট তৈরি
 app.post('/api/chats', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -96,12 +87,10 @@ app.post('/api/chats', (req, res) => {
     writeUserChats(userId, chats);
     res.status(201).json(newChat);
   } catch (error) {
-    console.error('Error creating chat:', error);
     res.status(500).json({ error: 'Failed to create chat' });
   }
 });
 
-// চ্যাট ডিলিট
 app.delete('/api/chats/:id', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -113,12 +102,11 @@ app.delete('/api/chats/:id', (req, res) => {
     writeUserChats(userId, filtered);
     res.status(200).json({ message: 'Chat deleted' });
   } catch (error) {
-    console.error('Error deleting chat:', error);
     res.status(500).json({ error: 'Failed to delete chat' });
   }
 });
 
-// ===================== মেসেজ সেন্ড =====================
+// ===== Gemini API ব্যবহার করে মেসেজ সেন্ড =====
 app.post('/api/chat/:id/message', async (req, res) => {
   const chatId = req.params.id;
   const { message, image } = req.body;
@@ -136,10 +124,9 @@ app.post('/api/chat/:id/message', async (req, res) => {
       return res.status(404).json({ error: 'Chat not found' });
     }
 
-    // ===== ইউজার মেসেজ তৈরি =====
     const userMessage = {
       role: 'user',
-      content: message || 'এই ছবিটি বিস্তারিত বর্ণনা করুন বাংলায়',
+      content: message || 'এই ছবিটি বিশ্লেষণ করুন',
       timestamp: new Date().toISOString()
     };
 
@@ -158,71 +145,48 @@ app.post('/api/chat/:id/message', async (req, res) => {
 
     writeUserChats(userId, chats);
 
-    // ===== API-র জন্য মেসেজ প্রস্তুত =====
-    let openaiMessages = [];
-
-    if (image) {
-      // GitHub Models-এর জন্য ছবি সহ মেসেজ ফরম্যাট
-      openaiMessages = [
-        {
-          role: 'user',
-          content: [
-            { 
-              type: 'text', 
-              text: message || 'এই ছবিটি বিস্তারিত বর্ণনা করুন বাংলায়। ছবিতে কী আছে, তার বিস্তারিত বলুন।' 
-            },
-            { 
-              type: 'image_url', 
-              image_url: { 
-                url: image 
-              } 
-            }
-          ]
-        }
-      ];
-    } else {
-      // শুধু টেক্সট মেসেজ
-      openaiMessages = chats[chatIndex].messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-    }
-
-    // ===== OpenAI API কল (GitHub Models) =====
-    const apiUrl = process.env.OPENAI_BASE_URL || 'https://models.inference.ai.azure.com';
-    const model = process.env.OPENAI_MODEL || 'gpt-4o';
+    // ===== Gemini API কল =====
+    const apiKey = process.env.OPENAI_API_KEY;
+    const model = process.env.OPENAI_MODEL || 'gemini-1.5-flash';
     
-    console.log(`📡 Calling API: ${apiUrl}`);
-    console.log(`📡 Using model: ${model}`);
-    console.log(`📡 Messages:`, JSON.stringify(openaiMessages, null, 2).slice(0, 500) + '...');
+    // চ্যাট হিস্টোরি থেকে মেসেজ তৈরি
+    const contents = chats[chatIndex].messages.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    }));
 
-    const response = await fetch(`${apiUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: openaiMessages,
-        stream: false,
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
-    });
+    console.log(`📡 Calling Gemini API with model: ${model}`);
+    console.log(`📡 Messages:`, JSON.stringify(contents, null, 2).slice(0, 500) + '...');
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2000,
+          }
+        })
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ API Error Response:', errorText);
+      console.error('❌ Gemini API Error:', errorText);
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('✅ API Response received');
+    console.log('✅ Gemini API Response received');
+    
+    const assistantContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                            'আমি উত্তর দিতে পারছি না। আবার চেষ্টা করুন। 🙏';
 
-    const assistantContent = data.choices[0].message.content;
-
-    // ===== অ্যাসিস্ট্যান্ট মেসেজ সেভ =====
     const assistantMessage = {
       role: 'assistant',
       content: assistantContent,
@@ -242,7 +206,6 @@ app.post('/api/chat/:id/message', async (req, res) => {
   }
 });
 
-// ===================== ক্যাচ-অল রাউট =====================
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -255,10 +218,9 @@ app.get('*', (req, res) => {
   });
 });
 
-// ===================== সার্ভার চালু =====================
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 Using model: ${process.env.OPENAI_MODEL || 'gpt-4o'}`);
-  console.log(`📡 API Base URL: ${process.env.OPENAI_BASE_URL || 'https://models.inference.ai.azure.com'}`);
+  console.log(`📡 Using model: ${process.env.OPENAI_MODEL || 'gemini-1.5-flash'}`);
+  console.log(`📡 API Base URL: ${process.env.OPENAI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'}`);
   console.log(`📁 Chats directory: ${CHATS_DIR}`);
 });
