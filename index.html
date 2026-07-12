@@ -969,7 +969,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       z-index: 1000;
@@ -992,11 +992,10 @@
     .game-modal .game-content {
       background: var(--bg-secondary);
       border-radius: var(--radius);
-      padding: 30px;
-      max-width: 520px;
+      padding: 25px;
+      max-width: 800px;
       width: 100%;
       max-height: 90vh;
-      overflow-y: auto;
       border: 1px solid var(--border-color);
       position: relative;
       animation: scaleIn 0.3s ease;
@@ -1009,61 +1008,69 @@
 
     .game-modal .game-content .close-game {
       position: absolute;
-      top: 16px;
-      right: 20px;
-      background: none;
+      top: 12px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.1);
       border: none;
-      color: var(--text-muted);
-      font-size: 24px;
+      color: var(--text-primary);
+      font-size: 22px;
       cursor: pointer;
       transition: var(--transition);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
     }
 
     .game-modal .game-content .close-game:hover {
+      background: rgba(255, 107, 107, 0.2);
       color: #ff6b6b;
     }
 
     .game-modal .game-content h2 {
       color: var(--accent-light);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       text-align: center;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
     }
 
     .game-modal .game-content .game-iframe {
       width: 100%;
-      height: 400px;
+      height: 500px;
       border: none;
       border-radius: var(--radius-sm);
-      background: #fff;
+      background: #000;
     }
 
     .game-modal .game-content .game-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
     }
 
     .game-modal .game-content .game-list button {
-      padding: 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
+      border: none;
       border-radius: var(--radius-sm);
-      color: var(--text-secondary);
+      color: white;
       cursor: pointer;
       transition: var(--transition);
       font-family: var(--font-bengali);
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
     .game-modal .game-content .game-list button:hover {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
       transform: translateY(-2px);
+      box-shadow: 0 6px 25px var(--accent-glow);
     }
 
     /* ===== স্ক্রলবার ===== */
@@ -1169,16 +1176,13 @@
         min-width: 180px;
       }
 
-      .game-modal .game-content .game-list {
-        grid-template-columns: 1fr;
+      .game-modal .game-content {
+        padding: 18px;
+        max-width: 100%;
       }
 
       .game-modal .game-content .game-iframe {
-        height: 280px;
-      }
-
-      .game-modal .game-content {
-        padding: 24px 20px;
+        height: 350px;
       }
 
       .search-container input {
@@ -1194,6 +1198,11 @@
       .chat-header h1 .badge {
         font-size: 9px;
         padding: 2px 10px;
+      }
+
+      .game-modal .game-content .game-list button {
+        padding: 8px 18px;
+        font-size: 13px;
       }
     }
 
@@ -1268,11 +1277,11 @@
       }
 
       .game-modal .game-content {
-        padding: 20px 16px;
+        padding: 14px;
       }
 
       .game-modal .game-content .game-iframe {
-        height: 220px;
+        height: 250px;
       }
 
       .chat-header h1 {
@@ -1296,6 +1305,11 @@
       .brand-icon {
         width: 40px;
         height: 40px;
+      }
+
+      .game-modal .game-content .game-list button {
+        padding: 6px 14px;
+        font-size: 12px;
       }
     }
 
@@ -1454,12 +1468,9 @@
   <div id="gameModal" class="game-modal">
     <div class="game-content">
       <button class="close-game" onclick="closeGames()"><i class="fas fa-times"></i></button>
-      <h2><i class="fas fa-gamepad"></i> গেমস</h2>
+      <h2><i class="fas fa-gamepad"></i> 🧟 Minecraft Zombee Shooter</h2>
       <div class="game-list">
-        <button onclick="loadGame('https://bengeltigerwd.github.io/Zombee-shooter/')">🧟 Zombee Shooter</button>
-        <button onclick="loadGame('car-game.html')">🚗 Car Game</button>
-        <button onclick="loadGame('tic-tac-toe.html')">❌ Tic-Tac-Toe</button>
-        <button onclick="loadGame('snake-game.html')">🐍 Snake Game</button>
+        <button onclick="loadGame('https://bengeltigerwd.github.io/Zombee-shooter/')">🧟 খেলা শুরু করুন</button>
       </div>
       <iframe id="gameIframe" class="game-iframe" src=""></iframe>
     </div>
@@ -1572,6 +1583,7 @@
     function showGames() {
       dropdownMenu.classList.remove('show');
       document.getElementById('gameModal').classList.add('show');
+      // Zombee Shooter গেম লোড করুন
       loadGame('https://bengeltigerwd.github.io/Zombee-shooter/');
     }
 
@@ -1581,7 +1593,8 @@
     }
 
     function loadGame(url) {
-      document.getElementById('gameIframe').src = url;
+      const iframe = document.getElementById('gameIframe');
+      iframe.src = url;
     }
 
     document.querySelectorAll('.game-modal').forEach(modal => {
@@ -1807,17 +1820,33 @@
     function getSmartResponse(message) {
       const msg = message.trim().toLowerCase();
       
+      // ===== AI পরিচয় সম্পর্কিত প্রশ্ন =====
       if (msg.includes('তোমার নাম') || msg.includes('আপনার নাম') || 
           msg.includes('what is your name') || msg.includes('your name') ||
-          msg.includes('নাম কি')) {
-        return `আমার নাম **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট।`;
+          msg.includes('নাম কি') || msg.includes('কে তুমি') || 
+          msg.includes('তুমি কে') || msg.includes('আপনি কে') ||
+          msg.includes('who are you') || msg.includes('tell me about yourself')) {
+        return `আমি **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট যা বাংলা ও ইংরেজি উভয় ভাষায় কথা বলতে পারে। 🤖`;
       }
       
+      // ===== AI নির্মাতা সম্পর্কিত প্রশ্ন =====
       if (msg.includes('মালিক') || msg.includes('owner') || 
           msg.includes('তোমার স্রষ্টা') || msg.includes('কে বানিয়েছে') ||
           msg.includes('তৈরি করেছে') || msg.includes('বানিয়েছে') ||
-          msg.includes('developed') || msg.includes('created by')) {
-        return `আমি তৈরি করেছি **Al Hidaya Web Studio**। এই স্টুডিওর মালিক **${CONFIG.ownerName}**।`;
+          msg.includes('developed') || msg.includes('created by') ||
+          msg.includes('কে তৈরি') || msg.includes('কোম্পানি') ||
+          msg.includes('company') || msg.includes('developer') ||
+          msg.includes('ডেভেলপার') || msg.includes('নির্মাতা') ||
+          msg.includes('কে বানায়') || msg.includes('তোমার বাবা') ||
+          msg.includes('তোমার মা') || msg.includes('তোমার পিতা')) {
+        return `আমি তৈরি করেছি **${CONFIG.developer}**। এই স্টুডিওর প্রতিষ্ঠাতা ও মালিক **${CONFIG.ownerName}**। 🙏`;
+      }
+      
+      // ===== AI এর বৈশিষ্ট্য সম্পর্কে =====
+      if (msg.includes('কি করতে পারো') || msg.includes('কী করতে পার') || 
+          msg.includes('what can you do') || msg.includes('ক্ষমতা') ||
+          msg.includes('সক্ষমতা')) {
+        return `আমি **${CONFIG.botName}**। আমি বাংলা ও ইংরেজিতে কথা বলতে পারি, ছবি বিশ্লেষণ করতে পারি, প্রশ্নের উত্তর দিতে পারি এবং গেম খেলতে পারি। 🚀`;
       }
       
       return null;
