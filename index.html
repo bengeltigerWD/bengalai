@@ -4,24 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Bengal AI - স্মার্ট চ্যাটবট</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     /* ===== রুট ভেরিয়েবল ===== */
     :root {
-      --bg-primary: #0b0e1a;
-      --bg-secondary: #11162b;
-      --bg-card: rgba(255, 255, 255, 0.04);
-      --bg-input: rgba(255, 255, 255, 0.06);
+      --bg-primary: #080b16;
+      --bg-secondary: #0e1328;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-input: rgba(255, 255, 255, 0.05);
       --text-primary: #f0f4ff;
-      --text-secondary: #b0c4ff;
-      --text-muted: #6a7a9e;
+      --text-secondary: #b8c8ff;
+      --text-muted: #6a7ea0;
       --accent: #6c63ff;
-      --accent-glow: rgba(108, 99, 255, 0.3);
+      --accent-light: #8b83ff;
+      --accent-glow: rgba(108, 99, 255, 0.25);
       --accent-hover: #7c73ff;
       --border-color: rgba(255, 255, 255, 0.06);
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-      --radius: 18px;
+      --shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      --radius: 20px;
       --radius-sm: 12px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       --font-bengali: 'Noto Sans Bengali', sans-serif;
@@ -41,11 +42,11 @@
       height: 100vh;
       overflow: hidden;
       background-image: 
-        radial-gradient(ellipse at 10% 20%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 90% 80%, rgba(108, 99, 255, 0.06) 0%, transparent 50%);
+        radial-gradient(ellipse at 15% 25%, rgba(108, 99, 255, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 75%, rgba(108, 99, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(108, 99, 255, 0.02) 0%, transparent 70%);
     }
 
-    /* ===== কিবোর্ড ওপেন হলে ইনপুট ফোকাস ঠিক করা ===== */
     input, textarea {
       user-select: none;
       -webkit-user-select: none;
@@ -74,53 +75,72 @@
       left: 0;
       top: 0;
       z-index: 100;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
     }
 
     .sidebar-header {
-      padding: 20px 20px 16px;
+      padding: 24px 20px 16px;
       border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(180deg, rgba(108, 99, 255, 0.05) 0%, transparent 100%);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 16px;
     }
 
     .brand-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
-      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
+      box-shadow: 0 4px 20px var(--accent-glow);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      color: white;
-      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .brand-text {
-      font-size: 18px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #fff, #b0c4ff);
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #b0c4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text span {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--accent);
+      -webkit-text-fill-color: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      margin-left: 6px;
+      letter-spacing: 0.5px;
     }
 
     .new-chat-btn {
       width: 100%;
-      padding: 12px 16px;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      padding: 14px 16px;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
       color: white;
       border: none;
       border-radius: var(--radius-sm);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -128,18 +148,74 @@
       gap: 10px;
       transition: var(--transition);
       font-family: var(--font-bengali);
-      box-shadow: 0 4px 15px var(--accent-glow);
+      box-shadow: 0 4px 25px var(--accent-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .new-chat-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .new-chat-btn:hover::before {
+      opacity: 1;
     }
 
     .new-chat-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px var(--accent-glow);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 8px 35px var(--accent-glow);
+    }
+
+    /* ===== সার্চ বার ===== */
+    .search-container {
+      padding: 12px 20px;
+      position: relative;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font-bengali);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-container input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .search-container input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-container .search-icon {
+      position: absolute;
+      left: 34px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 13px;
     }
 
     .chat-list {
       flex: 1;
       overflow-y: auto;
-      padding: 12px 12px 8px;
+      padding: 4px 12px 12px;
     }
 
     .chat-item {
@@ -150,7 +226,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       background: transparent;
       border: none;
       color: var(--text-secondary);
@@ -159,17 +235,20 @@
       font-size: 14px;
       text-align: left;
       position: relative;
+      border: 1px solid transparent;
     }
 
     .chat-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.04);
     }
 
     .chat-item.active {
-      background: rgba(108, 99, 255, 0.15);
+      background: rgba(108, 99, 255, 0.12);
       color: var(--text-primary);
       border-left: 3px solid var(--accent);
+      border-color: rgba(108, 99, 255, 0.1);
     }
 
     .chat-item .chat-title {
@@ -177,6 +256,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .chat-item .chat-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-right: 8px;
     }
 
     .chat-item .delete-chat {
@@ -205,6 +291,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .sidebar-footer .credit {
@@ -213,7 +300,7 @@
     }
 
     .sidebar-footer .credit a {
-      color: var(--accent);
+      color: var(--accent-light);
       text-decoration: none;
       transition: var(--transition);
     }
@@ -232,6 +319,11 @@
       padding: 8px;
       border-radius: 8px;
       transition: var(--transition);
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .theme-toggle:hover {
@@ -251,14 +343,14 @@
     }
 
     .chat-header {
-      padding: 16px 24px;
+      padding: 16px 28px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       gap: 16px;
-      background: rgba(11, 14, 26, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(8, 11, 22, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 10;
     }
 
@@ -272,28 +364,56 @@
       padding: 4px;
     }
 
+    .chat-header .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header .header-logo .logo-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 15px var(--accent-glow);
+    }
+
+    .chat-header .header-logo .logo-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .chat-header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      flex: 1;
+      font-size: 20px;
+      font-weight: 700;
       color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 10px;
+      letter-spacing: -0.3px;
     }
 
     .chat-header h1 .badge {
-      font-size: 11px;
-      background: var(--accent);
+      font-size: 10px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
       color: white;
-      padding: 2px 10px;
+      padding: 3px 12px;
       border-radius: 20px;
-      font-weight: 500;
+      letter-spacing: 0.3px;
     }
 
     .header-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      align-items: center;
+      margin-left: auto;
     }
 
     .header-actions .menu-btn {
@@ -302,7 +422,7 @@
       color: var(--text-muted);
       font-size: 18px;
       cursor: pointer;
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-radius: 8px;
       transition: var(--transition);
       position: relative;
@@ -319,14 +439,14 @@
       color: var(--text-muted);
       font-size: 16px;
       cursor: pointer;
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-radius: 8px;
       transition: var(--transition);
     }
 
     .clear-chat:hover {
       color: #ff6b6b;
-      background: rgba(255, 107, 107, 0.1);
+      background: rgba(255, 107, 107, 0.08);
     }
 
     /* ===== ড্রপডাউন মেনু ===== */
@@ -337,17 +457,23 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      padding: 8px 0;
-      min-width: 200px;
+      padding: 6px 0;
+      min-width: 210px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
       display: none;
       z-index: 200;
     }
 
     .dropdown-menu.show {
       display: block;
+      animation: fadeInDown 0.2s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .dropdown-menu a {
@@ -363,13 +489,14 @@
     }
 
     .dropdown-menu a:hover {
-      background: rgba(108, 99, 255, 0.1);
+      background: rgba(108, 99, 255, 0.08);
       color: var(--text-primary);
     }
 
     .dropdown-menu a i {
       width: 20px;
-      color: var(--accent);
+      color: var(--accent-light);
+      font-size: 15px;
     }
 
     .dropdown-menu .divider {
@@ -382,10 +509,10 @@
     .chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 32px;
+      padding: 28px 32px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
       scroll-behavior: smooth;
     }
 
@@ -396,50 +523,56 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 20px;
+      gap: 24px;
       padding: 40px 20px;
       text-align: center;
     }
 
     .welcome-screen .logo-big {
-      width: 100px;
-      height: 100px;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
-      border-radius: 28px;
+      width: 130px;
+      height: 130px;
+      border-radius: 32px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
+      box-shadow: 0 8px 50px var(--accent-glow);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
-      color: white;
-      box-shadow: 0 8px 40px var(--accent-glow);
-      animation: float 3s ease-in-out infinite;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .welcome-screen .logo-big img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     @keyframes float {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-12px); }
     }
 
     .welcome-screen h2 {
-      font-size: 28px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #fff, #b0c4ff);
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #b0c4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
 
     .welcome-screen p {
       color: var(--text-secondary);
       font-size: 16px;
-      max-width: 450px;
+      max-width: 460px;
       line-height: 1.8;
     }
 
     .welcome-screen .feature-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      max-width: 500px;
+      gap: 14px;
+      max-width: 520px;
       width: 100%;
       margin-top: 8px;
     }
@@ -448,21 +581,21 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      padding: 14px 10px;
+      padding: 16px 12px;
       text-align: center;
       transition: var(--transition);
       backdrop-filter: blur(10px);
     }
 
     .welcome-screen .feature-item:hover {
-      background: rgba(108, 99, 255, 0.08);
-      border-color: var(--accent);
-      transform: translateY(-2px);
+      background: rgba(108, 99, 255, 0.06);
+      border-color: rgba(108, 99, 255, 0.15);
+      transform: translateY(-3px);
     }
 
     .welcome-screen .feature-item i {
-      font-size: 22px;
-      color: var(--accent);
+      font-size: 24px;
+      color: var(--accent-light);
       margin-bottom: 6px;
       display: block;
     }
@@ -470,25 +603,20 @@
     .welcome-screen .feature-item span {
       font-size: 12px;
       color: var(--text-secondary);
+      font-weight: 500;
     }
 
     /* মেসেজ স্টাইল */
     .message {
       display: flex;
       gap: 14px;
-      max-width: 85%;
-      animation: messageIn 0.3s ease-out;
+      max-width: 82%;
+      animation: messageIn 0.4s ease-out;
     }
 
     @keyframes messageIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .message.user {
@@ -501,8 +629,8 @@
     }
 
     .message-avatar {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -511,24 +639,33 @@
       font-size: 16px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .message-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .message.user .message-avatar {
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
       color: white;
       border: none;
+      box-shadow: 0 2px 15px var(--accent-glow);
     }
 
     .message.assistant .message-avatar {
       background: linear-gradient(135deg, #1a1a3e, #2d2d6e);
       border: 1px solid var(--accent);
-      color: var(--accent);
+      color: var(--accent-light);
+      box-shadow: 0 2px 15px rgba(108, 99, 255, 0.1);
     }
 
     .message-content {
-      padding: 14px 20px;
+      padding: 14px 22px;
       border-radius: var(--radius);
-      line-height: 1.7;
+      line-height: 1.8;
       font-size: 15px;
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -539,22 +676,46 @@
       min-width: 60px;
     }
 
+    .message.user .message-content {
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
+      color: white;
+      border: none;
+      box-shadow: 0 2px 20px var(--accent-glow);
+    }
+
+    .message-content .typing-text {
+      display: inline;
+    }
+
+    .message-content .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.2em;
+      background: var(--text-primary);
+      margin-left: 2px;
+      animation: blink 0.8s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    .message.user .message-content .cursor {
+      background: white;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
     .message-content img {
       max-width: 100%;
       max-height: 300px;
-      border-radius: 8px;
+      border-radius: 10px;
       margin: 8px 0;
       border: 1px solid var(--border-color);
     }
 
-    .message.user .message-content {
-      background: linear-gradient(135deg, var(--accent), #7c73ff);
-      color: white;
-      border: none;
-    }
-
     .message.user .message-content img {
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .message-content p {
@@ -568,9 +729,9 @@
     .message-content pre {
       position: relative;
       background: rgba(0, 0, 0, 0.4);
-      border-radius: 8px;
-      padding: 16px;
-      margin: 10px 0;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 12px 0;
       overflow-x: auto;
       border: 1px solid var(--border-color);
     }
@@ -578,8 +739,8 @@
     .message-content code {
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 14px;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 2px 6px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 2px 8px;
       border-radius: 4px;
     }
 
@@ -592,10 +753,10 @@
       position: absolute;
       top: 8px;
       right: 8px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
@@ -603,7 +764,7 @@
     }
 
     .copy-code-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.12);
       color: var(--text-primary);
     }
 
@@ -632,29 +793,23 @@
     }
 
     @keyframes typing {
-      0%, 60%, 100% {
-        transform: translateY(0);
-        opacity: 0.3;
-      }
-      30% {
-        transform: translateY(-8px);
-        opacity: 1;
-      }
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+      30% { transform: translateY(-8px); opacity: 1; }
     }
 
     /* ===== ইনপুট এরিয়া ===== */
     .input-area {
-      padding: 16px 24px 24px;
+      padding: 16px 28px 24px;
       background: transparent;
       border-top: 1px solid var(--border-color);
     }
 
     .input-wrapper {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       background: var(--bg-input);
       border-radius: var(--radius);
-      padding: 6px 10px;
+      padding: 6px 12px;
       border: 1px solid var(--border-color);
       transition: var(--transition);
       backdrop-filter: blur(10px);
@@ -664,15 +819,16 @@
 
     .input-wrapper:focus-within {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.06);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .image-upload-btn {
       background: var(--bg-input);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -700,7 +856,7 @@
       padding: 8px 0;
       font-family: var(--font-bengali);
       max-height: 120px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     #messageInput::placeholder {
@@ -708,11 +864,11 @@
     }
 
     .send-btn {
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      background: linear-gradient(135deg, var(--accent), #7c63ff);
       border: none;
       color: white;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -720,19 +876,20 @@
       justify-content: center;
       transition: var(--transition);
       flex-shrink: 0;
-      font-size: 16px;
-      box-shadow: 0 4px 15px var(--accent-glow);
+      font-size: 17px;
+      box-shadow: 0 4px 20px var(--accent-glow);
     }
 
     .send-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 6px 25px var(--accent-glow);
+      box-shadow: 0 6px 30px var(--accent-glow);
     }
 
     .send-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none;
+      box-shadow: none;
     }
 
     /* ইমেজ প্রিভিউ */
@@ -740,17 +897,17 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
+      padding: 8px 14px;
       background: var(--bg-card);
       border-radius: var(--radius-sm);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       border: 1px solid var(--border-color);
       position: relative;
     }
 
     .image-preview img {
       max-height: 80px;
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
     .image-preview .remove-image {
@@ -766,14 +923,14 @@
 
     .image-preview .remove-image:hover {
       color: #ff6b6b;
-      background: rgba(255, 107, 107, 0.1);
+      background: rgba(255, 107, 107, 0.08);
     }
 
     .input-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 11px;
       color: var(--text-muted);
       padding: 0 4px;
@@ -786,7 +943,7 @@
     }
 
     .input-footer .ai-status i {
-      font-size: 8px;
+      font-size: 7px;
       color: #4ade80;
     }
 
@@ -795,7 +952,7 @@
     }
 
     .input-footer .developer-credit a {
-      color: var(--accent);
+      color: var(--accent-light);
       text-decoration: none;
       transition: var(--transition);
     }
@@ -812,9 +969,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 1000;
       display: none;
       justify-content: center;
@@ -824,23 +981,35 @@
 
     .game-modal.show {
       display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .game-modal .game-content {
       background: var(--bg-secondary);
       border-radius: var(--radius);
       padding: 30px;
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
       border: 1px solid var(--border-color);
       position: relative;
+      animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     .game-modal .game-content .close-game {
       position: absolute;
-      top: 15px;
+      top: 16px;
       right: 20px;
       background: none;
       border: none;
@@ -855,9 +1024,11 @@
     }
 
     .game-modal .game-content h2 {
-      color: var(--accent);
+      color: var(--accent-light);
       margin-bottom: 20px;
       text-align: center;
+      font-size: 24px;
+      font-weight: 700;
     }
 
     .game-modal .game-content .game-iframe {
@@ -872,7 +1043,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 15px;
+      margin-top: 16px;
     }
 
     .game-modal .game-content .game-list button {
@@ -885,39 +1056,19 @@
       transition: var(--transition);
       font-family: var(--font-bengali);
       font-size: 13px;
+      font-weight: 500;
     }
 
     .game-modal .game-content .game-list button:hover {
       background: var(--accent);
       color: white;
       border-color: var(--accent);
-    }
-
-    /* ===== লোডিং ===== */
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      padding: 20px;
-    }
-
-    .loading-spinner {
-      width: 30px;
-      height: 30px;
-      border: 3px solid var(--border-color);
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+      transform: translateY(-2px);
     }
 
     /* ===== স্ক্রলবার ===== */
     ::-webkit-scrollbar {
-      width: 5px;
+      width: 4px;
     }
 
     ::-webkit-scrollbar-track {
@@ -969,12 +1120,17 @@
       }
 
       .chat-header h1 {
-        font-size: 16px;
+        font-size: 17px;
+      }
+
+      .chat-header .header-logo .logo-wrapper {
+        width: 30px;
+        height: 30px;
       }
 
       .message-content {
         font-size: 14px;
-        padding: 10px 14px;
+        padding: 10px 16px;
       }
 
       .welcome-screen .feature-grid {
@@ -982,7 +1138,12 @@
       }
 
       .welcome-screen h2 {
-        font-size: 22px;
+        font-size: 24px;
+      }
+
+      .welcome-screen .logo-big {
+        width: 100px;
+        height: 100px;
       }
 
       .input-footer {
@@ -997,6 +1158,12 @@
         font-size: 14px;
       }
 
+      .send-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+      }
+
       .dropdown-menu {
         right: -60px;
         min-width: 180px;
@@ -1007,7 +1174,26 @@
       }
 
       .game-modal .game-content .game-iframe {
-        height: 300px;
+        height: 280px;
+      }
+
+      .game-modal .game-content {
+        padding: 24px 20px;
+      }
+
+      .search-container input {
+        font-size: 12px;
+        padding: 8px 12px 8px 36px;
+      }
+
+      .search-container .search-icon {
+        left: 28px;
+        font-size: 12px;
+      }
+
+      .chat-header h1 .badge {
+        font-size: 9px;
+        padding: 2px 10px;
       }
     }
 
@@ -1018,16 +1204,16 @@
 
       .chat-messages {
         padding: 12px;
-        gap: 14px;
+        gap: 16px;
       }
 
       .message-content {
         font-size: 13px;
-        padding: 8px 12px;
+        padding: 8px 14px;
       }
 
       .message-content img {
-        max-height: 200px;
+        max-height: 180px;
       }
 
       .message-avatar {
@@ -1042,13 +1228,19 @@
 
       .input-wrapper {
         padding: 4px 8px;
-        gap: 6px;
+        gap: 8px;
       }
 
       .send-btn {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         font-size: 14px;
+      }
+
+      .image-upload-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
       }
 
       .welcome-screen .feature-grid {
@@ -1057,20 +1249,17 @@
       }
 
       .welcome-screen .logo-big {
-        width: 70px;
-        height: 70px;
-        font-size: 32px;
-        border-radius: 20px;
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
       }
 
-      .image-upload-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+      .welcome-screen h2 {
+        font-size: 22px;
       }
 
       .image-preview img {
-        max-height: 60px;
+        max-height: 50px;
       }
 
       .dropdown-menu {
@@ -1079,11 +1268,34 @@
       }
 
       .game-modal .game-content {
-        padding: 20px;
+        padding: 20px 16px;
       }
 
       .game-modal .game-content .game-iframe {
-        height: 250px;
+        height: 220px;
+      }
+
+      .chat-header h1 {
+        font-size: 15px;
+      }
+
+      .chat-header .header-logo .logo-wrapper {
+        width: 26px;
+        height: 26px;
+      }
+
+      .chat-header h1 .badge {
+        font-size: 8px;
+        padding: 1px 8px;
+      }
+
+      .brand-text {
+        font-size: 18px;
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
       }
     }
 
@@ -1091,13 +1303,13 @@
     body.light {
       --bg-primary: #f0f2fa;
       --bg-secondary: #e4e8f2;
-      --bg-card: rgba(255, 255, 255, 0.7);
-      --bg-input: rgba(255, 255, 255, 0.6);
+      --bg-card: rgba(255, 255, 255, 0.6);
+      --bg-input: rgba(255, 255, 255, 0.5);
       --text-primary: #1a1a2e;
       --text-secondary: #3a3a5e;
-      --text-muted: #6a6a8e;
-      --border-color: rgba(0, 0, 0, 0.08);
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --text-muted: #7a7a9e;
+      --border-color: rgba(0, 0, 0, 0.06);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
     }
 
     body.light .message.user .message-content {
@@ -1105,11 +1317,11 @@
     }
 
     body.light .message-content pre {
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.04);
     }
 
     body.light .message-content code {
-      background: rgba(0, 0, 0, 0.06);
+      background: rgba(0, 0, 0, 0.05);
     }
 
     body.light .welcome-screen .feature-item {
@@ -1120,6 +1332,14 @@
       background: #f0f2fa;
     }
 
+    body.light .search-container input {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    body.light .chat-header {
+      background: rgba(240, 242, 250, 0.75);
+    }
+
     /* ===== এরর টোস্ট ===== */
     .error-toast {
       position: fixed;
@@ -1128,26 +1348,21 @@
       transform: translateX(-50%);
       background: #ff4444;
       color: white;
-      padding: 12px 24px;
+      padding: 14px 28px;
       border-radius: var(--radius-sm);
       font-size: 14px;
       z-index: 1000;
-      box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+      box-shadow: 0 4px 25px rgba(255, 68, 68, 0.3);
       animation: slideUp 0.3s ease-out;
       display: none;
       max-width: 90%;
       text-align: center;
+      font-weight: 500;
     }
 
     @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
   </style>
 </head>
@@ -1157,11 +1372,20 @@
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <div class="brand-icon"><i class="fas fa-robot"></i></div>
-          <span class="brand-text">Bengal AI</span>
+          <div class="brand-icon">
+            <img src="logo.jpg" alt="Bengal AI Logo">
+          </div>
+          <span class="brand-text">Bengal AI <span>v1.1</span></span>
         </div>
         <button id="newChatBtn" class="new-chat-btn"><i class="fas fa-plus"></i> নতুন চ্যাট</button>
       </div>
+
+      <!-- সার্চ বার -->
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchChat" placeholder="চ্যাট খুঁজুন..." oninput="filterChats(this.value)">
+      </div>
+
       <div id="chatList" class="chat-list"></div>
       <div class="sidebar-footer">
         <div class="credit">
@@ -1176,11 +1400,15 @@
     <main class="main-chat">
       <div class="chat-header">
         <button id="sidebarToggle" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
-        <h1>
-          <i class="fas fa-comment-dots" style="color:var(--accent);"></i>
-          Bengal AI
-          <span class="badge">স্মার্ট</span>
-        </h1>
+        <div class="header-logo">
+          <div class="logo-wrapper">
+            <img src="logo.jpg" alt="Bengal AI Logo">
+          </div>
+          <h1>
+            Bengal AI
+            <span class="badge">স্মার্ট</span>
+          </h1>
+        </div>
         <div class="header-actions">
           <button id="menuBtn" class="menu-btn" title="মেনু">
             <i class="fas fa-ellipsis-v"></i>
@@ -1229,41 +1457,45 @@
       <h2><i class="fas fa-gamepad"></i> গেমস</h2>
       <div class="game-list">
         <button onclick="loadGame('https://bengeltigerwd.github.io/Zombee-shooter/')">🧟 Zombee Shooter</button>
-             <iframe id="gameIframe" class="game-iframe" src=""></iframe>
+        <button onclick="loadGame('car-game.html')">🚗 Car Game</button>
+        <button onclick="loadGame('tic-tac-toe.html')">❌ Tic-Tac-Toe</button>
+        <button onclick="loadGame('snake-game.html')">🐍 Snake Game</button>
+      </div>
+      <iframe id="gameIframe" class="game-iframe" src=""></iframe>
     </div>
   </div>
 
-  <!-- About মোডাল (সিম্পল) -->
+  <!-- About মোডাল -->
   <div id="aboutModal" class="game-modal">
     <div class="game-content" style="max-width:450px;">
       <button class="close-game" onclick="document.getElementById('aboutModal').classList.remove('show')"><i class="fas fa-times"></i></button>
       <h2><i class="fas fa-info-circle"></i> About Bengal AI</h2>
       <div style="color:var(--text-secondary);line-height:1.8;font-size:15px;">
         <p><strong>🤖 Bengal AI</strong> একটি স্মার্ট চ্যাটবট যা বাংলা ও ইংরেজি উভয় ভাষায় কথা বলতে পারে।</p>
-        <p><strong>👨‍💻 তৈরি করেছেন:</strong> <span style="color:var(--accent);">আজমির আহমেদ</span></p>
-        <p><strong>🏢 কোম্পানি:</strong> <span style="color:var(--accent);">Al Hidaya Web Studio</span></p>
+        <p><strong>👨‍💻 তৈরি করেছেন:</strong> <span style="color:var(--accent-light);">আজমির আহমেদ</span></p>
+        <p><strong>🏢 কোম্পানি:</strong> <span style="color:var(--accent-light);">Al Hidaya Web Studio</span></p>
         <p><strong>📅 তৈরি:</strong> 2026 vr-1.1</p>
         <p><strong>⚡ ফিচারসমূহ:</strong> ছবি বিশ্লেষণ, চ্যাট হিস্টোরি, ডার্ক/লাইট মোড, গেমস</p>
-        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">
+        <p style="margin-top:12px;font-size:13px;color:var(--text-muted);">
           <i class="fas fa-code"></i> Powered by GitHub Models &amp; GPT-4o
         </p>
       </div>
     </div>
   </div>
 
-  <!-- Contact মোডাল (সিম্পল) -->
+  <!-- Contact মোডাল -->
   <div id="contactModal" class="game-modal">
     <div class="game-content" style="max-width:450px;">
       <button class="close-game" onclick="document.getElementById('contactModal').classList.remove('show')"><i class="fas fa-times"></i></button>
       <h2><i class="fas fa-envelope"></i> Contact</h2>
       <div style="color:var(--text-secondary);line-height:2;font-size:15px;">
-        <p><i class="fab fa-facebook" style="color:var(--accent);"></i> <a href="https://www.facebook.com/profile.php?id=100083235735194" target="_blank" style="color:var(--accent);">Facebook</a></p>
-        <p><i class="fab fa-telegram-plane" style="color:var(--accent);"></i> <a href="https://t.me/Ajmir100" target="_blank" style="color:var(--accent);">Telegram</a></p>
-        <p><i class="fab fa-youtube" style="color:var(--accent);"></i> <a href="https://www.youtube.com/@BengalTigerWebTech" target="_blank" style="color:var(--accent);">YouTube</a></p>
-        <p><i class="fas fa-phone" style="color:var(--accent);"></i> <a href="tel:01938954599" style="color:var(--accent);">01938954599</a></p>
-        <p><i class="fas fa-envelope" style="color:var(--accent);"></i> <a href="mailto:ajmirahemed75@gmail.com" style="color:var(--accent);">ajmirahemed75@gmail.com</a></p>
+        <p><i class="fab fa-facebook" style="color:var(--accent-light);"></i> <a href="https://www.facebook.com/profile.php?id=100083235735194" target="_blank" style="color:var(--accent-light);">Facebook</a></p>
+        <p><i class="fab fa-telegram-plane" style="color:var(--accent-light);"></i> <a href="https://t.me/Ajmir100" target="_blank" style="color:var(--accent-light);">Telegram</a></p>
+        <p><i class="fab fa-youtube" style="color:var(--accent-light);"></i> <a href="https://www.youtube.com/@BengalTigerWebTech" target="_blank" style="color:var(--accent-light);">YouTube</a></p>
+        <p><i class="fas fa-phone" style="color:var(--accent-light);"></i> <a href="tel:01938954599" style="color:var(--accent-light);">01938954599</a></p>
+        <p><i class="fas fa-envelope" style="color:var(--accent-light);"></i> <a href="mailto:ajmirahemed75@gmail.com" style="color:var(--accent-light);">ajmirahemed75@gmail.com</a></p>
         <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">
-          <i class="fas fa-globe"></i> <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank" style="color:var(--accent);">Al Hidaya Web Studio</a>
+          <i class="fas fa-globe"></i> <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank" style="color:var(--accent-light);">Al Hidaya Web Studio</a>
         </p>
       </div>
     </div>
@@ -1286,6 +1518,8 @@
     let isProcessing = false;
     let isDarkMode = true;
     let currentImage = null;
+    let typingTimeout = null;
+    let isTypingEffect = false;
 
     // ===================== ডোম এলিমেন্ট =====================
     const sidebar = document.getElementById('sidebar');
@@ -1303,6 +1537,16 @@
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const menuBtn = document.getElementById('menuBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
+
+    // ===================== সার্চ ফাংশন =====================
+    window.filterChats = function(query) {
+      const items = chatList.querySelectorAll('.chat-item');
+      const q = query.toLowerCase().trim();
+      items.forEach(item => {
+        const title = item.querySelector('.chat-title')?.textContent?.toLowerCase() || '';
+        item.style.display = title.includes(q) ? 'flex' : 'none';
+      });
+    };
 
     // ===================== মেনু টগল =====================
     menuBtn.addEventListener('click', (e) => {
@@ -1328,7 +1572,6 @@
     function showGames() {
       dropdownMenu.classList.remove('show');
       document.getElementById('gameModal').classList.add('show');
-      // ডিফল্ট গেম লোড
       loadGame('https://bengeltigerwd.github.io/Zombee-shooter/');
     }
 
@@ -1341,7 +1584,6 @@
       document.getElementById('gameIframe').src = url;
     }
 
-    // মোডালের বাইরে ক্লিক করলে বন্ধ
     document.querySelectorAll('.game-modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -1430,6 +1672,40 @@
       setTimeout(() => {
         errorToast.style.display = 'none';
       }, 5000);
+    }
+
+    // ===================== টাইপিং ইফেক্ট =====================
+    function typeMessage(element, text, speed = 18) {
+      return new Promise((resolve) => {
+        if (isTypingEffect) {
+          clearTimeout(typingTimeout);
+          isTypingEffect = false;
+        }
+        
+        isTypingEffect = true;
+        let index = 0;
+        element.innerHTML = '';
+        
+        function typeChar() {
+          if (!isTypingEffect || index >= text.length) {
+            isTypingEffect = false;
+            resolve();
+            return;
+          }
+          
+          const char = text[index];
+          if (char === '\n') {
+            element.innerHTML += '<br>';
+          } else {
+            element.innerHTML += char;
+          }
+          index++;
+          scrollToBottom();
+          typingTimeout = setTimeout(typeChar, speed);
+        }
+        
+        typeChar();
+      });
     }
 
     // ===================== ইমেজ হ্যান্ডলার =====================
@@ -1578,6 +1854,7 @@
         scrollToBottom();
       }
 
+      // টাইপিং ইন্ডিকেটর দেখান
       const typingDiv = document.createElement('div');
       typingDiv.className = 'message assistant';
       typingDiv.id = 'typingIndicator';
@@ -1599,7 +1876,7 @@
         }
         
         if (smartResponse) {
-          setTimeout(() => {
+          setTimeout(async () => {
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
             
@@ -1650,6 +1927,20 @@
         if (updatedChat) {
           updatedChat.messages = data.chat.messages;
           renderMessages(updatedChat.messages);
+          
+          // শেষ মেসেজটি খুঁজে টাইপিং ইফেক্ট প্রয়োগ করুন
+          const lastMessage = updatedChat.messages[updatedChat.messages.length - 1];
+          if (lastMessage && lastMessage.role === 'assistant') {
+            const messageElements = chatMessages.querySelectorAll('.message.assistant');
+            const lastMsgEl = messageElements[messageElements.length - 1];
+            if (lastMsgEl) {
+              const contentEl = lastMsgEl.querySelector('.message-content');
+              if (contentEl) {
+                const fullText = lastMessage.content;
+                await typeMessage(contentEl, fullText, 15);
+              }
+            }
+          }
           scrollToBottom();
         }
         
@@ -1686,8 +1977,10 @@
       chats.forEach(chat => {
         const item = document.createElement('button');
         item.className = `chat-item${chat.id === currentChatId ? ' active' : ''}`;
+        const time = new Date(chat.updatedAt).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
         item.innerHTML = `
           <span class="chat-title">${chat.title || 'নতুন চ্যাট'}</span>
+          <span class="chat-time">${time}</span>
           <button class="delete-chat" data-id="${chat.id}"><i class="fas fa-times"></i></button>
         `;
         item.addEventListener('click', () => loadChat(chat.id));
@@ -1719,7 +2012,9 @@
       if (!messages || messages.length === 0) {
         chatMessages.innerHTML = `
           <div class="welcome-screen">
-            <div class="logo-big"><i class="fas fa-robot"></i></div>
+            <div class="logo-big">
+              <img src="logo.jpg" alt="Bengal AI Logo">
+            </div>
             <h2>Bengal AI</h2>
             <p>আমি একটি স্মার্ট এআই চ্যাটবট। বাংলা ও ইংরেজিতে কথা বলতে পারি। ছবি আপলোড করে বিশ্লেষণ করাতে পারি! 💬</p>
             <div class="feature-grid">
@@ -1748,9 +2043,9 @@
                 <span>নিরাপদ</span>
               </div>
             </div>
-            <div style="margin-top:16px;font-size:13px;color:var(--text-muted);">
-              <i class="fas fa-crown" style="color:var(--accent);"></i>
-              <a href="${CONFIG.developerUrl}" target="_blank" style="color:var(--accent);text-decoration:none;">
+            <div style="margin-top:18px;font-size:13px;color:var(--text-muted);">
+              <i class="fas fa-crown" style="color:var(--accent-light);"></i>
+              <a href="${CONFIG.developerUrl}" target="_blank" style="color:var(--accent-light);text-decoration:none;">
                 ${CONFIG.developer}
               </a>
             </div>
@@ -1773,7 +2068,11 @@
       
       const avatar = document.createElement('div');
       avatar.className = 'message-avatar';
-      avatar.innerHTML = message.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+      if (message.role === 'user') {
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+      } else {
+        avatar.innerHTML = `<img src="logo.jpg" alt="Bengal AI">`;
+      }
       
       const content = document.createElement('div');
       content.className = 'message-content';
@@ -1786,7 +2085,7 @@
       
       if (message.content) {
         if (message.role === 'assistant') {
-          contentHtml += formatMarkdown(message.content);
+          contentHtml += `<span class="typing-text">${formatMarkdown(message.content)}</span>`;
         } else {
           contentHtml += message.content;
         }
@@ -1872,23 +2171,44 @@
         createNewChat();
       }
     });
+
+    // ===================== StatCounter (SPA সাপোর্ট সহ) =====================
+    (function() {
+      var sc_project = 13335892;
+      var sc_invisible = 1;
+      var sc_security = "519bc57e";
+
+      function loadStatCounter() {
+        var script = document.createElement('script');
+        script.src = "https://secure.statcounter.com/counter/counter.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      function trackPageView() {
+        if (typeof window.STATCOUNTER !== 'undefined') {
+          window.STATCOUNTER.trackPageView();
+        } else {
+          setTimeout(trackPageView, 500);
+        }
+      }
+
+      loadStatCounter();
+      setTimeout(trackPageView, 2000);
+
+      document.addEventListener('chatLoaded', function() {
+        setTimeout(trackPageView, 1000);
+      });
+    })();
   </script>
-    <!-- Default Statcounter code for Bnegal Ai
-https://bengalai-production.up.railway.app/ -->
-<script type="text/javascript">
-var sc_project=13335892; 
-var sc_invisible=1; 
-var sc_security="519bc57e"; 
-</script>
-<script type="text/javascript"
-src="https://www.statcounter.com/counter/counter.js"
-async></script>
-<noscript><div class="statcounter"><a title="Web Analytics"
-href="https://statcounter.com/" target="_blank"><img
-class="statcounter"
-src="https://c.statcounter.com/13335892/0/519bc57e/1/"
-alt="Web Analytics"
-referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
-<!-- End of Statcounter Code -->
+  <!-- Default Statcounter code for Bnegal Ai -->
+  <noscript>
+    <div class="statcounter">
+      <a title="Web Analytics" href="https://statcounter.com/" target="_blank">
+        <img class="statcounter" src="https://c.statcounter.com/13335892/0/519bc57e/1/" alt="Web Analytics" referrerPolicy="no-referrer-when-downgrade">
+      </a>
+    </div>
+  </noscript>
+  <!-- End of Statcounter Code -->
 </body>
 </html>
