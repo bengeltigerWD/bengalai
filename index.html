@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bengal AI - স্মার্ট চ্যাটবট</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== রুট ভেরিয়েবল ===== */
+    :root {
+      --bg-primary: #0b0e1a;
+      --bg-secondary: #11162b;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --bg-input: rgba(255, 255, 255, 0.06);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4ff;
+      --text-muted: #6a7a9e;
+      --accent: #6c63ff;
+      --accent-glow: rgba(108, 99, 255, 0.3);
+      --accent-hover: #7c73ff;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --font-bengali: 'Noto Sans Bengali', sans-serif;
+    }
+
+    /* ===== গ্লোবাল স্টাইল ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-bengali);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      background-image: 
+        radial-gradient(ellipse at 10% 20%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(108, 99, 255, 0.06) 0%, transparent 50%);
+    }
+
+    #app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      max-width: 1440px;
+      margin: 0 auto;
+      background: transparent;
+      position: relative;
+    }
+
+    /* ===== সাইডবার ===== */
+    .sidebar {
+      width: 280px;
+      height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #b0c4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      font-family: var(--font-bengali);
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .new-chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px var(--accent-glow);
+    }
+
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 12px 8px;
+    }
+
+    .chat-item {
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      width: 100%;
+      font-family: var(--font-bengali);
+      font-size: 14px;
+      text-align: left;
+      position: relative;
+    }
+
+    .chat-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .chat-item.active {
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent);
+    }
+
+    .chat-item .chat-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chat-item .delete-chat {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: var(--transition);
+      opacity: 0;
+    }
+
+    .chat-item:hover .delete-chat {
+      opacity: 1;
+    }
+
+    .chat-item .delete-chat:hover {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-footer .credit {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-footer .credit a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .sidebar-footer .credit a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    /* ===== মেইন চ্যাট ===== */
+    .main-chat {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin-left: 280px;
+      background: transparent;
+      position: relative;
+    }
+
+    .chat-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(11, 14, 26, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .chat-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      flex: 1;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-header h1 .badge {
+      font-size: 11px;
+      background: var(--accent);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .clear-chat {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .clear-chat:hover {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    /* ===== চ্যাট মেসেজ ===== */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    /* ওয়েলকাম স্ক্রিন */
+    .welcome-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .welcome-screen .logo-big {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: white;
+      box-shadow: 0 8px 40px var(--accent-glow);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .welcome-screen h2 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #b0c4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-screen p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      max-width: 450px;
+      line-height: 1.8;
+    }
+
+    .welcome-screen .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 500px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .welcome-screen .feature-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 14px 10px;
+      text-align: center;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+    }
+
+    .welcome-screen .feature-item:hover {
+      background: rgba(108, 99, 255, 0.08);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .welcome-screen .feature-item i {
+      font-size: 22px;
+      color: var(--accent);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .welcome-screen .feature-item span {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* মেসেজ স্টাইল */
+    .message {
+      display: flex;
+      gap: 14px;
+      max-width: 85%;
+      animation: messageIn 0.3s ease-out;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .message-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: white;
+      border: none;
+    }
+
+    .message.assistant .message-avatar {
+      background: linear-gradient(135deg, #1a1a3e, #2d2d6e);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .message-content {
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      line-height: 1.7;
+      font-size: 15px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      min-width: 60px;
+    }
+
+    .message.user .message-content {
+      background: linear-gradient(135deg, var(--accent), #7c73ff);
+      color: white;
+      border: none;
+    }
+
+    .message-content p {
+      margin-bottom: 10px;
+    }
+
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-content pre {
+      position: relative;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 10px 0;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    .message-content code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .message-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    .copy-code-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .copy-code-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-primary);
+    }
+
+    /* টাইপিং ইন্ডিকেটর */
+    .typing-indicator {
+      display: flex;
+      gap: 6px;
+      padding: 12px 18px;
+      align-items: center;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.3;
+      }
+      30% {
+        transform: translateY(-8px);
+        opacity: 1;
+      }
+    }
+
+    /* ===== ইনপুট এরিয়া ===== */
+    .input-area {
+      padding: 16px 24px 24px;
+      background: transparent;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-input);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+    }
+
+    #messageInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 15px;
+      resize: none;
+      padding: 6px 0;
+      font-family: var(--font-bengali);
+      max-height: 120px;
+      line-height: 1.5;
+    }
+
+    #messageInput::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      flex-shrink: 0;
+      font-size: 18px;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px var(--accent-glow);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .input-footer .ai-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .input-footer .ai-status i {
+      font-size: 8px;
+      color: #4ade80;
+    }
+
+    .input-footer .developer-credit {
+      color: var(--text-muted);
+    }
+
+    .input-footer .developer-credit a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .input-footer .developer-credit a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    /* ===== লোডিং ===== */
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+    }
+
+    .loading-spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== স্ক্রলবার ===== */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* ===== রেসপন্সিভ ===== */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-chat {
+        margin-left: 0;
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .chat-messages {
+        padding: 16px;
+      }
+
+      .message {
+        max-width: 95%;
+      }
+
+      .input-area {
+        padding: 12px 16px 16px;
+      }
+
+      .chat-header {
+        padding: 12px 16px;
+      }
+
+      .chat-header h1 {
+        font-size: 16px;
+      }
+
+      .message-content {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+
+      .welcome-screen .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .welcome-screen h2 {
+        font-size: 22px;
+      }
+
+      .input-footer {
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .message {
+        max-width: 100%;
+      }
+
+      .chat-messages {
+        padding: 12px;
+        gap: 14px;
+      }
+
+      .message-content {
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
+      .message-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+      }
+
+      #messageInput {
+        font-size: 14px;
+      }
+
+      .input-wrapper {
+        padding: 6px 10px;
+      }
+
+      .send-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+      }
+
+      .welcome-screen .feature-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .welcome-screen .logo-big {
+        width: 70px;
+        height: 70px;
+        font-size: 32px;
+        border-radius: 20px;
+      }
+    }
+
+    /* ===== লাইট মোড ===== */
+    body.light {
+      --bg-primary: #f0f2fa;
+      --bg-secondary: #e4e8f2;
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --bg-input: rgba(255, 255, 255, 0.6);
+      --text-primary: #1a1a2e;
+      --text-secondary: #3a3a5e;
+      --text-muted: #6a6a8e;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    body.light .message.user .message-content {
+      color: white;
+    }
+
+    body.light .message-content pre {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    body.light .message-content code {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    body.light .welcome-screen .feature-item {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* ===== এরর টোস্ট ===== */
+    .error-toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff4444;
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+      animation: slideUp 0.3s ease-out;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- সাইডবার -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i class="fas fa-robot"></i></div>
+          <span class="brand-text">Bengal AI</span>
+        </div>
+        <button id="newChatBtn" class="new-chat-btn"><i class="fas fa-plus"></i> নতুন চ্যাট</button>
+      </div>
+      <div id="chatList" class="chat-list"></div>
+      <div class="sidebar-footer">
+        <div class="credit">
+          <i class="fas fa-code"></i>
+          <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank">Al Hidaya Web Studio</a>
+        </div>
+        <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+      </div>
+    </aside>
+
+    <!-- মেইন চ্যাট -->
+    <main class="main-chat">
+      <div class="chat-header">
+        <button id="sidebarToggle" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+        <h1>
+          <i class="fas fa-comment-dots" style="color:var(--accent);"></i>
+          Bengal AI
+          <span class="badge">স্মার্ট</span>
+        </h1>
+        <div class="header-actions">
+          <button id="clearChatBtn" class="clear-chat"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea id="messageInput" rows="1" placeholder="বার্তা লিখুন..."></textarea>
+          <button id="sendBtn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="input-footer">
+          <span class="ai-status"><i class="fas fa-circle"></i> AI প্রস্তুত</span>
+          <span class="developer-credit">
+            <i class="fas fa-crown"></i>
+            <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank">ডেভেলপিং বাই Al Hidaya Web Studio</a>
+          </span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="errorToast" class="error-toast"></div>
+
+  <script>
+    // ===================== কনফিগারেশন =====================
+    const CONFIG = {
+      botName: 'Bengal AI',
+      ownerName: 'আজমির আহমেদ',
+      developer: 'Al Hidaya Web Studio',
+      developerUrl: 'https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/',
+    };
+
+    // ===================== স্টেট =====================
+    let currentChatId = null;
+    let chats = [];
+    let isProcessing = false;
+    let isDarkMode = true;
+
+    // ===================== ডোম এলিমেন্ট =====================
+    const sidebar = document.getElementById('sidebar');
+    const chatList = document.getElementById('chatList');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const themeToggle = document.getElementById('themeToggle');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const errorToast = document.getElementById('errorToast');
+
+    // ===================== ইউটিলিটি ফাংশন =====================
+    function formatMarkdown(text) {
+      if (!text) return '';
+      
+      let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      html = html.replace(/```([\s\S]*?)```/g, (match, code) => {
+        return `<pre><code>${code.trim()}</code><button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> কপি</button></pre>`;
+      });
+      
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+      html = html.replace(/\n/g, '<br>');
+      html = html.replace(/<br><br>/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      html = html.replace(/<p><\/p>/g, '');
+      
+      return html;
+    }
+
+    window.copyCode = function(btn) {
+      const pre = btn.parentElement;
+      const code = pre.querySelector('code');
+      const text = code.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fas fa-copy"></i> কপি';
+        }, 2000);
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        btn.innerHTML = '<i class="fas fa-check"></i> কপি!';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fas fa-copy"></i> কপি';
+        }, 2000);
+      });
+    };
+
+    function scrollToBottom() {
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 100);
+    }
+
+    function autoResizeTextarea() {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+    }
+
+    function showError(message) {
+      errorToast.textContent = message;
+      errorToast.style.display = 'block';
+      setTimeout(() => {
+        errorToast.style.display = 'none';
+      }, 5000);
+    }
+
+    // ===================== এপিআই ফাংশন =====================
+    async function loadChats() {
+      try {
+        const response = await fetch('/api/chats');
+        if (!response.ok) throw new Error('Failed to load chats');
+        chats = await response.json();
+        renderChatList();
+      } catch (error) {
+        console.error('Error loading chats:', error);
+        showError('চ্যাট লোড করতে সমস্যা হয়েছে');
+      }
+    }
+
+    async function createNewChat() {
+      try {
+        const response = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to create chat');
+        const chat = await response.json();
+        chats.unshift(chat);
+        renderChatList();
+        loadChat(chat.id);
+        return chat;
+      } catch (error) {
+        console.error('Error creating chat:', error);
+        showError('নতুন চ্যাট তৈরি করতে সমস্যা হয়েছে');
+      }
+    }
+
+    async function deleteChat(chatId) {
+      if (!confirm('এই চ্যাটটি ডিলিট করতে চান?')) return;
+      
+      try {
+        const response = await fetch(`/api/chats/${chatId}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Failed to delete chat');
+        
+        chats = chats.filter(c => c.id !== chatId);
+        renderChatList();
+        
+        if (currentChatId === chatId) {
+          if (chats.length > 0) {
+            loadChat(chats[0].id);
+          } else {
+            await createNewChat();
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting chat:', error);
+        showError('চ্যাট ডিলিট করতে সমস্যা হয়েছে');
+      }
+    }
+
+    // ===================== স্মার্ট রেসপন্স হ্যান্ডলার =====================
+    function getSmartResponse(message) {
+      const msg = message.trim().toLowerCase();
+      
+      // "তোমার নাম কি?" - type questions
+      if (msg.includes('তোমার নাম') || msg.includes('আপনার নাম') || 
+          msg.includes('what is your name') || msg.includes('your name')) {
+        return `আমার নাম **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট। 😊`;
+      }
+      
+      // "তোমার মালিক কে?" or "তোমার মালিকের নাম কি?"
+      if (msg.includes('মালিক') || msg.includes('owner') || 
+          msg.includes('তোমার স্রষ্টা') || msg.includes('কে বানিয়েছে')) {
+        return `আমার  মালিক **${CONFIG.ownerName}**। তিনি একজন দক্ষ ডেভেলপার এবং আল-হিদায়া ওয়েব স্টুডিওর প্রতিষ্ঠাতা। 🎯`;
+      }
+      
+      // "কে তৈরি করেছে?"
+      if (msg.includes('তৈরি করেছে') || msg.includes('বানিয়েছে') || msg.includes('developed') || msg.includes('created by')) {
+        return `আমি তৈরি করেছি **${CONFIG.ownerName}** এবং **${CONFIG.developer}**-এর অধীনে। 🌟`;
+      }
+      
+      // "হ্যালো", "আসসালামু আলাইকুম" ইত্যাদি
+      if (msg.includes('হ্যালো') || msg.includes('আসসালামু') || msg.includes('سلام') || 
+          msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+        return `ওয়ালাইকুম আসসালাম! 🙏 আপনার সাথে কথা বলে খুব ভালো লাগছে। আমি ${CONFIG.botName}। কিভাবে সাহায্য করতে পারি?`;
+      }
+      
+      // "কেমন আছো?"
+      if (msg.includes('কেমন আছ') || msg.includes('how are you')) {
+        return `আলহামদুলিল্লাহ, আমি খুব ভালো আছি! 😊 আপনি কেমন আছেন?`;
+      }
+      
+      // "ধন্যবাদ", "থ্যাংক ইউ"
+      if (msg.includes('ধন্যবাদ') || msg.includes('thank')) {
+        return `আপনাকেও ধন্যবাদ! 🙏 আপনার কোনো প্রশ্ন থাকলে আমি সবসময় এখানে আছি।`;
+      }
+      
+      // "বাই", "বিদায়"
+      if (msg.includes('বাই') || msg.includes('বিদায়') || msg.includes('bye')) {
+        return `আল্লাহ হাফেজ! 🤝 আবার দেখা হবে। আপনার দিন শুভ হোক!`;
+      }
+      
+      // "কি অবস্থা?"
+      if (msg.includes('কি অবস্থা') || msg.includes('what\'s up')) {
+        return `সবকিছু ঠিকঠাক চলছে! 💫 আপনার খবর কী?`;
+      }
+      
+      // "বাংলা"
+      if (msg.includes('বাংলা') || msg.includes('bangla') || msg.includes('বাংলাদেশ')) {
+        return `বাংলা আমার প্রিয় ভাষা! 🇧🇩 আমি বাংলা এবং ইংরেজি উভয় ভাষায় উত্তর দিতে পারি।`;
+      }
+      
+      // "আমি কে?"
+      if (msg.includes('আমি কে') || msg.includes('who am i')) {
+        return `আপনি সম্ভবত একজন বিস্ময়কর মানুষ! 😊 আপনার সম্পর্কে আরও জানতে চাইলে বলতে পারেন।`;
+      }
+      
+      // "তোমার বয়স কত?"
+      if (msg.includes('বয়স') || msg.includes('age')) {
+        return `আমি একটি এআই, তাই আমার বয়স নেই! 😄 তবে আমি 2026 সালে তৈরি হয়েছি।`;
+      }
+      
+      return null; // কোনো স্মার্ট রেসপন্স না পেলে null রিটার্ন করবে
+    }
+
+    // ===================== মেসেজ সেন্ড =====================
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message || isProcessing || !currentChatId) return;
+
+      isProcessing = true;
+      sendBtn.disabled = true;
+      messageInput.value = '';
+      autoResizeTextarea();
+
+      // ইউজার মেসেজ যোগ করুন
+      const userMessage = {
+        role: 'user',
+        content: message,
+        timestamp: new Date().toISOString()
+      };
+      
+      const chat = chats.find(c => c.id === currentChatId);
+      if (chat) {
+        chat.messages.push(userMessage);
+        renderMessages(chat.messages);
+        scrollToBottom();
+      }
+
+      // টাইপিং ইন্ডিকেটর দেখান
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message assistant';
+      typingDiv.id = 'typingIndicator';
+      typingDiv.innerHTML = `
+        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+        <div class="message-content typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatMessages.appendChild(typingDiv);
+      scrollToBottom();
+
+      try {
+        // স্মার্ট রেসপন্স চেক করুন
+        const smartResponse = getSmartResponse(message);
+        
+        if (smartResponse) {
+          // স্মার্ট রেসপন্স পাওয়া গেলে সরাসরি দেখান
+          setTimeout(() => {
+            const typingEl = document.getElementById('typingIndicator');
+            if (typingEl) typingEl.remove();
+            
+            const assistantMessage = {
+              role: 'assistant',
+              content: smartResponse,
+              timestamp: new Date().toISOString()
+            };
+            
+            if (chat) {
+              chat.messages.push(assistantMessage);
+              renderMessages(chat.messages);
+              scrollToBottom();
+            }
+            isProcessing = false;
+            sendBtn.disabled = false;
+            messageInput.focus();
+          }, 500); // টাইপিং ইফেক্টের জন্য সামান্য দেরি
+          
+          return;
+        }
+
+        // স্মার্ট রেসপন্স না পেলে API কল করুন
+        const response = await fetch(`/api/chat/${currentChatId}/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const typingEl = document.getElementById('typingIndicator');
+        if (typingEl) typingEl.remove();
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to get response');
+        }
+
+        const data = await response.json();
+        
+        const updatedChat = chats.find(c => c.id === currentChatId);
+        if (updatedChat) {
+          updatedChat.messages = data.chat.messages;
+          renderMessages(updatedChat.messages);
+          scrollToBottom();
+        }
+        
+        renderChatList();
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        const typingEl = document.getElementById('typingIndicator');
+        if (typingEl) typingEl.remove();
+        
+        // API ফেইল হলে স্মার্ট রেসপন্স দেখান
+        const fallbackResponse = getSmartResponse(message) || 'দুঃখিত, একটি সমস্যা হয়েছে। তবে আমি এখানে আছি আপনার সাহায্য করতে! 🤗';
+        
+        const errorMsg = {
+          role: 'assistant',
+          content: fallbackResponse,
+          timestamp: new Date().toISOString()
+        };
+        const chat = chats.find(c => c.id === currentChatId);
+        if (chat) {
+          chat.messages.push(errorMsg);
+          renderMessages(chat.messages);
+          scrollToBottom();
+        }
+        showError('বার্তা পাঠাতে সমস্যা হয়েছে, তবে আমি উত্তর দিচ্ছি!');
+      } finally {
+        isProcessing = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+      }
+    }
+
+    // ===================== রেন্ডার ফাংশন =====================
+    function renderChatList() {
+      chatList.innerHTML = '';
+      chats.forEach(chat => {
+        const item = document.createElement('button');
+        item.className = `chat-item${chat.id === currentChatId ? ' active' : ''}`;
+        item.innerHTML = `
+          <span class="chat-title">${chat.title || 'নতুন চ্যাট'}</span>
+          <button class="delete-chat" data-id="${chat.id}"><i class="fas fa-times"></i></button>
+        `;
+        item.addEventListener('click', () => loadChat(chat.id));
+        const deleteBtn = item.querySelector('.delete-chat');
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteChat(chat.id);
+        });
+        chatList.appendChild(item);
+      });
+    }
+
+    function loadChat(chatId) {
+      const chat = chats.find(c => c.id === chatId);
+      if (!chat) return;
+      
+      currentChatId = chatId;
+      renderMessages(chat.messages || []);
+      renderChatList();
+      
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+    }
+
+    function renderMessages(messages) {
+      chatMessages.innerHTML = '';
+      if (!messages || messages.length === 0) {
+        chatMessages.innerHTML = `
+          <div class="welcome-screen">
+            <div class="logo-big"><i class="fas fa-robot"></i></div>
+            <h2>Bengal AI</h2>
+            <p>আমি একটি স্মার্ট এআই চ্যাটবট। বাংলা ও ইংরেজিতে কথা বলতে পারি। আপনার যেকোনো প্রশ্ন করুন! 💬</p>
+            <div class="feature-grid">
+              <div class="feature-item">
+                <i class="fas fa-language"></i>
+                <span>বাংলা & ইংরেজি</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-brain"></i>
+                <span>স্মার্ট উত্তর</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-code"></i>
+                <span>কোড সাপোর্ট</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-history"></i>
+                <span>চ্যাট হিস্টোরি</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-mobile-alt"></i>
+                <span>মোবাইল ফ্রেন্ডলি</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>নিরাপদ</span>
+              </div>
+            </div>
+            <div style="margin-top:16px;font-size:13px;color:var(--text-muted);">
+              <i class="fas fa-crown" style="color:var(--accent);"></i>
+              <a href="${CONFIG.developerUrl}" target="_blank" style="color:var(--accent);text-decoration:none;">
+                ${CONFIG.developer}
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      messages.forEach((msg) => {
+        const messageDiv = createMessageElement(msg);
+        chatMessages.appendChild(messageDiv);
+      });
+      
+      scrollToBottom();
+    }
+
+    function createMessageElement(message) {
+      const div = document.createElement('div');
+      div.className = `message ${message.role}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.innerHTML = message.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      
+      if (message.role === 'assistant') {
+        content.innerHTML = formatMarkdown(message.content);
+      } else {
+        content.textContent = message.content;
+      }
+      
+      div.appendChild(avatar);
+      div.appendChild(content);
+      return div;
+    }
+
+    function clearCurrentChat() {
+      const chat = chats.find(c => c.id === currentChatId);
+      if (!chat || chat.messages.length === 0) return;
+      
+      if (!confirm('সমস্ত বার্তা মুছে ফেলতে চান?')) return;
+      
+      chat.messages = [];
+      renderMessages([]);
+      renderChatList();
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('light', !isDarkMode);
+      themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    }
+
+    // ===================== ইভেন্ট লিসেনার =====================
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadChats();
+      if (chats.length === 0) {
+        await createNewChat();
+      } else {
+        loadChat(chats[0].id);
+      }
+      
+      sendBtn.addEventListener('click', sendMessage);
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      messageInput.addEventListener('input', autoResizeTextarea);
+      newChatBtn.addEventListener('click', createNewChat);
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+      themeToggle.addEventListener('click', toggleTheme);
+      clearChatBtn.addEventListener('click', clearCurrentChat);
+      
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+          if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+
+      messageInput.focus();
+    });
+
+    // ===================== কিবোর্ড শর্টকাট =====================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        messageInput.focus();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        createNewChat();
+      }
+    });
+  </script>
+</body>
+</html>

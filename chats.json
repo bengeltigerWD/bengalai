@@ -1,0 +1,90 @@
+[
+  {
+    "id": "d083698b-1eaf-46ef-8efb-f14943a8bc2b",
+    "title": "নতুন চ্যাট",
+    "messages": [],
+    "createdAt": "2026-07-12T06:04:37.415Z",
+    "updatedAt": "2026-07-12T06:04:37.415Z"
+  },
+  {
+    "id": "ea939dbd-684c-46d8-ad02-431efba0dbc3",
+    "title": "একটা ক্যালকুলেটর সফটওয়্যার বা...",
+    "messages": [
+      {
+        "role": "user",
+        "content": "একটা ক্যালকুলেটর সফটওয়্যার বানান এইচটিএমএল এর সাহায্যে সুন্দর ডিজাইন দিবেন ক্যালকুলেটরের",
+        "timestamp": "2026-07-12T05:58:43.182Z"
+      },
+      {
+        "role": "assistant",
+        "content": "নিচে HTML ও CSS ব্যবহার করে একটি সুন্দর ডিজাইন করা ক্যালকুলেটর সফটওয়্যার তৈরি করার কোড দেওয়া হলো। এই ক্যালকুলেটরটি সুন্দরভাবে ডিজাইন করা হয়েছে এবং এর মাধ্যমে আপনি সাধারণ গণনা করতে পারবেন।\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>সুন্দর ডিজাইন ক্যালকুলেটর</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            background-color: #f3f4f6;\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            margin: 0;\n        }\n        .calculator {\n            background-color: #ffffff;\n            width: 300px;\n            border-radius: 10px;\n            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);\n            padding: 20px;\n        }\n        .display {\n            width: 100%;\n            height: 60px;\n            background-color: #f1f1f1;\n            border: none;\n            border-radius: 5px;\n            font-size: 24px;\n            text-align: right;\n            padding: 10px;\n            margin-bottom: 20px;\n        }\n        .buttons {\n            display: grid;\n            grid-template-columns: repeat(4, 1fr);\n            gap: 10px;\n        }\n        .button {\n            background-color: #4CAF50;\n            color: white;\n            border: none;\n            border-radius: 5px;\n            padding: 15px;\n            font-size: 18px;\n            cursor: pointer;\n            transition: background-color 0.3s;\n        }\n        .button:hover {\n            background-color: #45a049;\n        }\n        .button.operator {\n            background-color: #f39c12;\n        }\n        .button.operator:hover {\n            background-color: #e67e22;\n        }\n        .button.clear {\n            background-color: #e74c3c;\n        }\n        .button.clear:hover {\n            background-color: #c0392b;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"calculator\">\n        <input type=\"text\" class=\"display\" id=\"result\" readonly>\n        <div class=\"buttons\">\n            <button class=\"button\" onclick=\"appendNumber('7')\">7</button>\n            <button class=\"button\" onclick=\"appendNumber('8')\">8</button>\n            <button class=\"button\" onclick=\"appendNumber('9')\">9</button>\n            <button class=\"button operator\" onclick=\"appendOperator('/')\">÷</button>\n\n            <button class=\"button\" onclick=\"appendNumber('4')\">4</button>\n            <button class=\"button\" onclick=\"appendNumber('5')\">5</button>\n            <button class=\"button\" onclick=\"appendNumber('6')\">6</button>\n            <button class=\"button operator\" onclick=\"appendOperator('*')\">×</button>\n\n            <button class=\"button\" onclick=\"appendNumber('1')\">1</button>\n            <button class=\"button\" onclick=\"appendNumber('2')\">2</button>\n            <button class=\"button\" onclick=\"appendNumber('3')\">3</button>\n            <button class=\"button operator\" onclick=\"appendOperator('-')\">−</button>\n\n            <button class=\"button\" onclick=\"appendNumber('0')\">0</button>\n            <button class=\"button\" onclick=\"appendNumber('.')\">.</button>\n            <button class=\"button clear\" onclick=\"clearDisplay()\">C</button>\n            <button class=\"button operator\" onclick=\"appendOperator('+')\">+</button>\n\n            <button class=\"button\" style=\"grid-column: span 4;\" onclick=\"calculateResult()\">=</button>\n        </div>\n    </div>\n\n    <script>\n        let display = document.getElementById('result');\n\n        function appendNumber(number) {\n            display.value += number;\n        }\n\n        function appendOperator(operator) {\n            display.value += operator;\n        }\n\n        function clearDisplay() {\n            display.value = '';\n        }\n\n        function calculateResult() {\n            try {\n                display.value = eval(display.value); // Evaluates the expression\n            } catch (error) {\n                display.value = 'Error';\n            }\n        }\n    </script>\n</body>\n</html>\n```\n\n### কিভাবে চালাবেন:\n1. উপরের কোডটি কপি করুন।\n2. আপনার কম্পিউটারে একটি `calculator.html` নামে ফাইল তৈরি করুন এবং সেখানে এই কোডটি পেস্ট করুন।\n3. ফাইলটি ব্রাউজারে ওপেন করুন। আপনি একটি সুন্দর ক্যালকুলেটর দেখতে পাবেন যা কাজ করবে।\n\n### সতর্কতা:\nএই ক্যালকুলেটরে `eval()` ফাংশন ব্যবহার করা হয়েছে, যা ইউজার ইনপুটের ক্ষেত্রে নিরাপত্তার জন্য ঝুঁকিপূর্ণ হতে পারে। এটি শুধুমাত্র শিক্ষামূলক উদ্দেশ্যে ব্যবহার করুন।",
+        "timestamp": "2026-07-12T05:58:50.420Z"
+      }
+    ],
+    "createdAt": "2026-07-12T05:58:04.837Z",
+    "updatedAt": "2026-07-12T05:58:43.182Z"
+  },
+  {
+    "id": "001b3908-8683-468d-9b6c-156e417cbc11",
+    "title": "hello",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hello",
+        "timestamp": "2026-07-12T05:47:58.630Z"
+      },
+      {
+        "role": "user",
+        "content": "hello",
+        "timestamp": "2026-07-12T05:49:17.477Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Hello! 😊 How can I assist you today?",
+        "timestamp": "2026-07-12T05:49:20.277Z"
+      },
+      {
+        "role": "user",
+        "content": "How are you",
+        "timestamp": "2026-07-12T05:49:50.258Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I'm just a bunch of code, but if I could feel, I'd say I'm doing great! 😊 How about you? How's your day going?",
+        "timestamp": "2026-07-12T05:49:52.924Z"
+      },
+      {
+        "role": "user",
+        "content": "what is your name ?",
+        "timestamp": "2026-07-12T05:50:13.594Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I’m your friendly AI assistant! You can call me whatever you’d like—Assistant, AI buddy, or even give me a fun name if you want! 😊 What would you like to call me?",
+        "timestamp": "2026-07-12T05:50:15.719Z"
+      },
+      {
+        "role": "user",
+        "content": "tumi ki banglai kotha bolte paro",
+        "timestamp": "2026-07-12T05:50:32.705Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Aboshsho'i! Ami Banglay kotha bolte pari. 😊 Apni ki Banglay kono prosno korte chan, na ki kono bishoy niye alochona korte chan?",
+        "timestamp": "2026-07-12T05:50:35.073Z"
+      },
+      {
+        "role": "user",
+        "content": "পৃথিবীর সবচেয়ে বড় মহাসাগর কোনটি?",
+        "timestamp": "2026-07-12T05:52:05.725Z"
+      },
+      {
+        "role": "assistant",
+        "content": "পৃথিবীর সবচেয়ে বড় মহাসাগর হল **প্রশান্ত মহাসাগর** (Pacific Ocean)। 🌊\n\nএর আয়তন প্রায় **১৬.৫ কোটি বর্গকিলোমিটার** (১৬৫ মিলিয়ন বর্গকিমি), যা পৃথিবীর মোট জলের প্রায় ৪৬% এবং সমগ্র পৃথিবীর পৃষ্ঠভাগের প্রায় ৩০% জুড়ে রয়েছে। এটি আকারে এত বড় যে বিশ্বের অন্য চারটি মহাসাগরের চেয়ে বড়।\n\nআপনার আরও কোনো প্রশ্ন থাকলে জানাতে পারেন! 😊",
+        "timestamp": "2026-07-12T05:52:08.954Z"
+      }
+    ],
+    "createdAt": "2026-07-12T05:47:54.492Z",
+    "updatedAt": "2026-07-12T05:52:05.725Z"
+  }
+]
