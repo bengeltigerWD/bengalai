@@ -45,6 +45,12 @@
         radial-gradient(ellipse at 90% 80%, rgba(108, 99, 255, 0.06) 0%, transparent 50%);
     }
 
+    /* ===== কিবোর্ড ওপেন হলে ইনপুট ফোকাস ঠিক করা ===== */
+    input, textarea {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
     #app {
       display: flex;
       width: 100%;
@@ -290,6 +296,23 @@
       gap: 8px;
     }
 
+    .header-actions .menu-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .header-actions .menu-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
     .clear-chat {
       background: none;
       border: none;
@@ -304,6 +327,55 @@
     .clear-chat:hover {
       color: #ff6b6b;
       background: rgba(255, 107, 107, 0.1);
+    }
+
+    /* ===== ড্রপডাউন মেনু ===== */
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 0;
+      min-width: 200px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: none;
+      z-index: 200;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: var(--transition);
+      font-family: var(--font-bengali);
+    }
+
+    .dropdown-menu a:hover {
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .dropdown-menu a i {
+      width: 20px;
+      color: var(--accent);
+    }
+
+    .dropdown-menu .divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 4px 0;
     }
 
     /* ===== চ্যাট মেসেজ ===== */
@@ -733,6 +805,94 @@
       text-decoration: underline;
     }
 
+    /* ===== গেম মোডাল ===== */
+    .game-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-modal.show {
+      display: flex;
+    }
+
+    .game-modal .game-content {
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .game-modal .game-content .close-game {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .game-modal .game-content .close-game:hover {
+      color: #ff6b6b;
+    }
+
+    .game-modal .game-content h2 {
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .game-modal .game-content .game-iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: #fff;
+    }
+
+    .game-modal .game-content .game-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .game-modal .game-content .game-list button {
+      padding: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: var(--font-bengali);
+      font-size: 13px;
+    }
+
+    .game-modal .game-content .game-list button:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
     /* ===== লোডিং ===== */
     .loading-container {
       display: flex;
@@ -836,6 +996,19 @@
         height: 36px;
         font-size: 14px;
       }
+
+      .dropdown-menu {
+        right: -60px;
+        min-width: 180px;
+      }
+
+      .game-modal .game-content .game-list {
+        grid-template-columns: 1fr;
+      }
+
+      .game-modal .game-content .game-iframe {
+        height: 300px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -899,6 +1072,19 @@
       .image-preview img {
         max-height: 60px;
       }
+
+      .dropdown-menu {
+        right: -80px;
+        min-width: 160px;
+      }
+
+      .game-modal .game-content {
+        padding: 20px;
+      }
+
+      .game-modal .game-content .game-iframe {
+        height: 250px;
+      }
     }
 
     /* ===== লাইট মোড ===== */
@@ -928,6 +1114,10 @@
 
     body.light .welcome-screen .feature-item {
       background: rgba(255, 255, 255, 0.5);
+    }
+
+    body.light .game-modal .game-content {
+      background: #f0f2fa;
     }
 
     /* ===== এরর টোস্ট ===== */
@@ -992,6 +1182,17 @@
           <span class="badge">স্মার্ট</span>
         </h1>
         <div class="header-actions">
+          <button id="menuBtn" class="menu-btn" title="মেনু">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <!-- ড্রপডাউন মেনু -->
+          <div id="dropdownMenu" class="dropdown-menu">
+            <a href="#" onclick="showAbout()"><i class="fas fa-info-circle"></i> About</a>
+            <a href="#" onclick="showContact()"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="#" onclick="showGames()"><i class="fas fa-gamepad"></i> গেমস</a>
+            <div class="divider"></div>
+            <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank"><i class="fas fa-globe"></i> Al Hidaya Web Studio</a>
+          </div>
           <button id="clearChatBtn" class="clear-chat"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
@@ -1019,6 +1220,57 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- গেম মোডাল -->
+  <div id="gameModal" class="game-modal">
+    <div class="game-content">
+      <button class="close-game" onclick="closeGames()"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-gamepad"></i> গেমস</h2>
+      <div class="game-list">
+        <button onclick="loadGame('https://bengeltigerwd.github.io/Zombee-shooter/')">🧟 Zombee Shooter</button>
+        <button onclick="loadGame('https://bengeltigerwd.github.io/Car-Game/')">🚗 Car Game</button>
+        <button onclick="loadGame('https://bengeltigerwd.github.io/Tic-Tac-Toe/')">❌ Tic-Tac-Toe</button>
+        <button onclick="loadGame('https://bengeltigerwd.github.io/Snake-Game/')">🐍 Snake Game</button>
+      </div>
+      <iframe id="gameIframe" class="game-iframe" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- About মোডাল (সিম্পল) -->
+  <div id="aboutModal" class="game-modal">
+    <div class="game-content" style="max-width:450px;">
+      <button class="close-game" onclick="document.getElementById('aboutModal').classList.remove('show')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-info-circle"></i> About Bengal AI</h2>
+      <div style="color:var(--text-secondary);line-height:1.8;font-size:15px;">
+        <p><strong>🤖 Bengal AI</strong> একটি স্মার্ট চ্যাটবট যা বাংলা ও ইংরেজি উভয় ভাষায় কথা বলতে পারে।</p>
+        <p><strong>👨‍💻 তৈরি করেছেন:</strong> <span style="color:var(--accent);">আজমির আহমেদ</span></p>
+        <p><strong>🏢 কোম্পানি:</strong> <span style="color:var(--accent);">Al Hidaya Web Studio</span></p>
+        <p><strong>📅 তৈরি:</strong> 2026 vr-1.1</p>
+        <p><strong>⚡ ফিচারসমূহ:</strong> ছবি বিশ্লেষণ, চ্যাট হিস্টোরি, ডার্ক/লাইট মোড, গেমস</p>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">
+          <i class="fas fa-code"></i> Powered by GitHub Models &amp; GPT-4o
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact মোডাল (সিম্পল) -->
+  <div id="contactModal" class="game-modal">
+    <div class="game-content" style="max-width:450px;">
+      <button class="close-game" onclick="document.getElementById('contactModal').classList.remove('show')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-envelope"></i> Contact</h2>
+      <div style="color:var(--text-secondary);line-height:2;font-size:15px;">
+        <p><i class="fab fa-facebook" style="color:var(--accent);"></i> <a href="https://www.facebook.com/profile.php?id=100083235735194" target="_blank" style="color:var(--accent);">Facebook</a></p>
+        <p><i class="fab fa-telegram-plane" style="color:var(--accent);"></i> <a href="https://t.me/Ajmir100" target="_blank" style="color:var(--accent);">Telegram</a></p>
+        <p><i class="fab fa-youtube" style="color:var(--accent);"></i> <a href="https://www.youtube.com/@BengalTigerWebTech" target="_blank" style="color:var(--accent);">YouTube</a></p>
+        <p><i class="fas fa-phone" style="color:var(--accent);"></i> <a href="tel:01938954599" style="color:var(--accent);">01938954599</a></p>
+        <p><i class="fas fa-envelope" style="color:var(--accent);"></i> <a href="mailto:ajmirahemed75@gmail.com" style="color:var(--accent);">ajmirahemed75@gmail.com</a></p>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">
+          <i class="fas fa-globe"></i> <a href="https://bengeltigerwd.github.io/AL-HIDAYA-WEB-STUDIO-BD/" target="_blank" style="color:var(--accent);">Al Hidaya Web Studio</a>
+        </p>
+      </div>
+    </div>
   </div>
 
   <div id="errorToast" class="error-toast"></div>
@@ -1053,6 +1305,57 @@
     const imageUploadBtn = document.getElementById('imageUploadBtn');
     const imageInput = document.getElementById('imageInput');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    // ===================== মেনু টগল =====================
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.remove('show');
+    });
+
+    // ===================== About, Contact, Games ফাংশন =====================
+    function showAbout() {
+      dropdownMenu.classList.remove('show');
+      document.getElementById('aboutModal').classList.add('show');
+    }
+
+    function showContact() {
+      dropdownMenu.classList.remove('show');
+      document.getElementById('contactModal').classList.add('show');
+    }
+
+    function showGames() {
+      dropdownMenu.classList.remove('show');
+      document.getElementById('gameModal').classList.add('show');
+      // ডিফল্ট গেম লোড
+      loadGame('https://bengeltigerwd.github.io/Zombee-shooter/');
+    }
+
+    function closeGames() {
+      document.getElementById('gameModal').classList.remove('show');
+      document.getElementById('gameIframe').src = '';
+    }
+
+    function loadGame(url) {
+      document.getElementById('gameIframe').src = url;
+    }
+
+    // মোডালের বাইরে ক্লিক করলে বন্ধ
+    document.querySelectorAll('.game-modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+          if (modal.id === 'gameModal') {
+            document.getElementById('gameIframe').src = '';
+          }
+        }
+      });
+    });
 
     // ===================== ইউজার আইডি =====================
     function getUserId() {
@@ -1268,7 +1571,6 @@
         timestamp: new Date().toISOString()
       };
 
-      // ইউজার মেসেজে ছবি যোগ করুন (ডিসপ্লের জন্য)
       if (image) {
         userMessage.image = image;
       }
@@ -1280,7 +1582,6 @@
         scrollToBottom();
       }
 
-      // টাইপিং ইন্ডিকেটর দেখান
       const typingDiv = document.createElement('div');
       typingDiv.className = 'message assistant';
       typingDiv.id = 'typingIndicator';
@@ -1296,7 +1597,6 @@
       scrollToBottom();
 
       try {
-        // স্মার্ট রেসপন্স চেক করুন (শুধু টেক্সটের জন্য)
         let smartResponse = null;
         if (message && !image) {
           smartResponse = getSmartResponse(message);
@@ -1326,7 +1626,6 @@
           return;
         }
 
-        // API কল
         const requestBody = { message: message || 'এই ছবিটি বিশ্লেষণ করুন' };
         if (image) {
           requestBody.image = image;
@@ -1485,12 +1784,10 @@
       
       let contentHtml = '';
       
-      // ইউজারের ছবি দেখান (যদি থাকে)
       if (message.role === 'user' && message.image) {
         contentHtml += `<img src="${message.image}" alt="আপলোড করা ছবি">`;
       }
       
-      // টেক্সট কন্টেন্ট
       if (message.content) {
         if (message.role === 'assistant') {
           contentHtml += formatMarkdown(message.content);
@@ -1547,7 +1844,6 @@
       themeToggle.addEventListener('click', toggleTheme);
       clearChatBtn.addEventListener('click', clearCurrentChat);
       
-      // ইমেজ আপলোড
       imageUploadBtn.addEventListener('click', () => {
         imageInput.click();
       });
