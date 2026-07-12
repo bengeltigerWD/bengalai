@@ -1816,41 +1816,121 @@
       }
     }
 
-    // ===================== স্মার্ট রেসপন্স হ্যান্ডলার =====================
-    function getSmartResponse(message) {
-      const msg = message.trim().toLowerCase();
-      
-      // ===== AI পরিচয় সম্পর্কিত প্রশ্ন =====
-      if (msg.includes('তোমার নাম') || msg.includes('আপনার নাম') || 
-          msg.includes('what is your name') || msg.includes('your name') ||
-          msg.includes('নাম কি') || msg.includes('কে তুমি') || 
-          msg.includes('তুমি কে') || msg.includes('আপনি কে') ||
-          msg.includes('who are you') || msg.includes('tell me about yourself')) {
-        return `আমি **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট যা বাংলা ও ইংরেজি উভয় ভাষায় কথা বলতে পারে। 🤖`;
-      }
-      
-      // ===== AI নির্মাতা সম্পর্কিত প্রশ্ন =====
-      if (msg.includes('মালিক') || msg.includes('owner') || 
-          msg.includes('তোমার স্রষ্টা') || msg.includes('কে বানিয়েছে') ||
-          msg.includes('তৈরি করেছে') || msg.includes('বানিয়েছে') ||
-          msg.includes('developed') || msg.includes('created by') ||
-          msg.includes('কে তৈরি') || msg.includes('কোম্পানি') ||
-          msg.includes('company') || msg.includes('developer') ||
-          msg.includes('ডেভেলপার') || msg.includes('নির্মাতা') ||
-          msg.includes('কে বানায়') || msg.includes('তোমার বাবা') ||
-          msg.includes('তোমার মা') || msg.includes('তোমার পিতা')) {
-        return `আমি তৈরি করেছি **${CONFIG.developer}**। এই স্টুডিওর প্রতিষ্ঠাতা ও মালিক **${CONFIG.ownerName}**। 🙏`;
-      }
-      
-      // ===== AI এর বৈশিষ্ট্য সম্পর্কে =====
-      if (msg.includes('কি করতে পারো') || msg.includes('কী করতে পার') || 
-          msg.includes('what can you do') || msg.includes('ক্ষমতা') ||
-          msg.includes('সক্ষমতা')) {
-        return `আমি **${CONFIG.botName}**। আমি বাংলা ও ইংরেজিতে কথা বলতে পারি, ছবি বিশ্লেষণ করতে পারি, প্রশ্নের উত্তর দিতে পারি এবং গেম খেলতে পারি। 🚀`;
-      }
-      
-      return null;
+    // ===================== স্মার্ট রেসপন্স হ্যান্ডলার (আপডেটেড) =====================
+function getSmartResponse(message) {
+  const msg = message.trim().toLowerCase();
+  
+  // ===== সমস্ত সম্ভাব্য পরিচয় সম্পর্কিত প্রশ্ন (বাংলা, ইংরেজি, বাংলিশ) =====
+  const identityQuestions = [
+    // বাংলা
+    'তুমি কে', 'তোমার নাম', 'তোমাকে কে', 'আপনি কে', 'আপনার নাম', 
+    'কে তুমি', 'কে আপনি', 'তোমার পরিচয়', 'আপনার পরিচয়',
+    'তোমার কি নাম', 'আপনার কি নাম', 'নাম কি', 'কি নাম',
+    'তুমি কোন এআই', 'আপনি কোন এআই', 'কোন এআই তুমি',
+    'তুমি কি', 'আপনি কি', 'তুমি কিসের', 'আপনি কিসের',
+    'তোমার সম্পর্কে বলো', 'আপনার সম্পর্কে বলুন',
+    'তোমাকে চিনি', 'আপনাকে চিনি',
+    'কে তুমি বলো', 'কে আপনি বলুন',
+    
+    // ইংরেজি
+    'who are you', 'what is your name', 'your name', 
+    'tell me about yourself', 'introduce yourself',
+    'what are you', 'who is this', 'who you are',
+    'what is this chatbot', 'what ai are you',
+    'can you introduce yourself', 'please introduce yourself',
+    
+    // বাংলিশ (মিশ্রিত)
+    'tumi ke', 'tomar nam', 'ki nam', 'kon ai',
+    'tumi kon ai', 'apnar nam', 'apni ke',
+    'tumi ki', 'apni ki', 'tumi ka', 'apni ka',
+    'who r u', 'who ru', 'whats your name', 'whats ur name',
+    'tell me about u', 'about u', 'about you',
+    'introduce u', 'introduce yourself', 'self introduction'
+  ];
+
+  // ===== নির্মাতা সম্পর্কিত প্রশ্ন (বাংলা, ইংরেজি, বাংলিশ) =====
+  const creatorQuestions = [
+    // বাংলা
+    'কে বানিয়েছে', 'কে তৈরি করেছে', 'তোমার স্রষ্টা', 'তোমার মালিক',
+    'কে বানায়', 'কে তৈরি', 'তোমার নির্মাতা', 'তোমার কর্তা',
+    'কে বানিয়েছে তোমাকে', 'কে তৈরি করেছে তোমাকে',
+    'তোমার বাবা', 'তোমার মা', 'তোমার পিতা', 'তোমার মাতা',
+    'কোন কোম্পানি', 'কোন স্টুডিও', 'কোন প্রতিষ্ঠান',
+    'তোমার প্রযোজক', 'তোমার ডেভেলপার', 'তোমার developer',
+    'কারা বানিয়েছে', 'কারা তৈরি করেছে',
+    'বানানোর কথা', 'তৈরির কথা', 'নির্মাণের কথা',
+    
+    // ইংরেজি
+    'who created you', 'who made you', 'who built you',
+    'who developed you', 'who is your creator', 'who is your owner',
+    'who is your maker', 'who designed you', 'who programmed you',
+    'what company', 'which company', 'your developer',
+    'your creator', 'your owner', 'your maker',
+    'developed by', 'created by', 'built by',
+    'who is behind you', 'who is your father',
+    
+    // বাংলিশ (মিশ্রিত)
+    'ke banaiyese', 'ke toiri korese', 'ke banale',
+    'tomar srosta', 'tomar malik', 'ke developer',
+    'kon company', 'kon studio', 'kon developer',
+    'who banaiyese', 'who toiri korese', 'who create',
+    'tomar baba', 'tomar ma', 'tomar pita',
+    'bananor kotha', 'toirir kotha', 'creation',
+    'ke banay', 'ke toiri', 'ke make',
+    'who make you', 'who create you', 'who develop you'
+  ];
+
+  // ===== AI এর বৈশিষ্ট্য সম্পর্কিত প্রশ্ন =====
+  const capabilityQuestions = [
+    'কি করতে পারো', 'কী করতে পার', 'কি পারো',
+    'তোমার সক্ষমতা', 'তোমার ক্ষমতা', 'আপনার সক্ষমতা',
+    'what can you do', 'your ability', 'your capability',
+    'ki korte paro', 'ki paro', 'ability',
+    'features', 'ফিচার', 'বৈশিষ্ট্য',
+    'কি কি করতে পারো', 'কী কী করতে পার'
+  ];
+
+  // ===== চেক করুন: পরিচয় সম্পর্কিত প্রশ্ন =====
+  for (let q of identityQuestions) {
+    if (msg.includes(q) || msg.includes(q.replace(/\s/g, ''))) {
+      return `আমি **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট যা বাংলা ও ইংরেজি উভয় ভাষায় কথা বলতে পারে। 🤖`;
     }
+  }
+
+  // ===== চেক করুন: নির্মাতা সম্পর্কিত প্রশ্ন =====
+  for (let q of creatorQuestions) {
+    if (msg.includes(q) || msg.includes(q.replace(/\s/g, ''))) {
+      return `আমি তৈরি করেছি **${CONFIG.developer}**। এই স্টুডিওর প্রতিষ্ঠাতা ও মালিক **${CONFIG.ownerName}**। 🙏`;
+    }
+  }
+
+  // ===== চেক করুন: সক্ষমতা সম্পর্কিত প্রশ্ন =====
+  for (let q of capabilityQuestions) {
+    if (msg.includes(q) || msg.includes(q.replace(/\s/g, ''))) {
+      return `আমি **${CONFIG.botName}**। আমি বাংলা ও ইংরেজিতে কথা বলতে পারি, ছবি বিশ্লেষণ করতে পারি, প্রশ্নের উত্তর দিতে পারি এবং গেম খেলতে পারি। 🚀`;
+    }
+  }
+
+  // ===== হ্যালো/সালাম সম্পর্কিত =====
+  const helloWords = ['হ্যালো', 'হ্যালো', 'আসসালামু', 'সালাম', 'hello', 'hi', 'hey', 'হাই', 'আসসালামুআলাইকুম'];
+  for (let w of helloWords) {
+    if (msg.includes(w)) {
+      return `ওয়ালাইকুম আসসালাম! 🙏 আপনার সাথে কথা বলে খুব ভালো লাগছে। আমি **${CONFIG.botName}**। কিভাবে সাহায্য করতে পারি?`;
+    }
+  }
+
+  // ===== ধন্যবাদ =====
+  if (msg.includes('ধন্যবাদ') || msg.includes('thank')) {
+    return `আপনাকেও ধন্যবাদ! 🙏 আপনার কোনো প্রশ্ন থাকলে আমি সবসময় এখানে আছি।`;
+  }
+
+  // ===== ভালো থাকা =====
+  if (msg.includes('কেমন আছ') || msg.includes('how are you') || msg.includes('kemon acho')) {
+    return `আলহামদুলিল্লাহ, আমি খুব ভালো আছি! 😊 আপনি কেমন আছেন?`;
+  }
+
+  return null;
+}
 
     // ===================== মেসেজ সেন্ড =====================
     async function sendMessage() {
