@@ -467,10 +467,22 @@
       min-width: 60px;
     }
 
+    .message-content img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin: 8px 0;
+      border: 1px solid var(--border-color);
+    }
+
     .message.user .message-content {
       background: linear-gradient(135deg, var(--accent), #7c73ff);
       color: white;
       border: none;
+    }
+
+    .message.user .message-content img {
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .message-content p {
@@ -567,19 +579,42 @@
 
     .input-wrapper {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       background: var(--bg-input);
       border-radius: var(--radius);
-      padding: 8px 12px;
+      padding: 6px 10px;
       border: 1px solid var(--border-color);
       transition: var(--transition);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      align-items: center;
     }
 
     .input-wrapper:focus-within {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+    }
+
+    .image-upload-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .image-upload-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--accent);
     }
 
     #messageInput {
@@ -590,7 +625,7 @@
       color: var(--text-primary);
       font-size: 15px;
       resize: none;
-      padding: 6px 0;
+      padding: 8px 0;
       font-family: var(--font-bengali);
       max-height: 120px;
       line-height: 1.5;
@@ -604,8 +639,8 @@
       background: linear-gradient(135deg, var(--accent), #a78bfa);
       border: none;
       color: white;
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -613,7 +648,7 @@
       justify-content: center;
       transition: var(--transition);
       flex-shrink: 0;
-      font-size: 18px;
+      font-size: 16px;
       box-shadow: 0 4px 15px var(--accent-glow);
     }
 
@@ -626,6 +661,40 @@
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
+    }
+
+    /* ইমেজ প্রিভিউ */
+    .image-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .image-preview img {
+      max-height: 80px;
+      border-radius: 6px;
+    }
+
+    .image-preview .remove-image {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .image-preview .remove-image:hover {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
     }
 
     .input-footer {
@@ -761,6 +830,12 @@
         gap: 4px;
         align-items: center;
       }
+
+      .image-upload-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -778,6 +853,10 @@
         padding: 8px 12px;
       }
 
+      .message-content img {
+        max-height: 200px;
+      }
+
       .message-avatar {
         width: 32px;
         height: 32px;
@@ -789,12 +868,13 @@
       }
 
       .input-wrapper {
-        padding: 6px 10px;
+        padding: 4px 8px;
+        gap: 6px;
       }
 
       .send-btn {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         font-size: 14px;
       }
 
@@ -808,6 +888,16 @@
         height: 70px;
         font-size: 32px;
         border-radius: 20px;
+      }
+
+      .image-upload-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+      }
+
+      .image-preview img {
+        max-height: 60px;
       }
     }
 
@@ -909,7 +999,14 @@
       <div id="chatMessages" class="chat-messages"></div>
 
       <div class="input-area">
+        <!-- ইমেজ প্রিভিউ দেখানোর জন্য -->
+        <div id="imagePreviewContainer"></div>
+
         <div class="input-wrapper">
+          <button id="imageUploadBtn" class="image-upload-btn" title="ছবি আপলোড করুন">
+            <i class="fas fa-image"></i>
+          </button>
+          <input type="file" id="imageInput" accept="image/*" style="display:none">
           <textarea id="messageInput" rows="1" placeholder="বার্তা লিখুন..."></textarea>
           <button id="sendBtn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
         </div>
@@ -940,6 +1037,7 @@
     let chats = [];
     let isProcessing = false;
     let isDarkMode = true;
+    let currentImage = null;
 
     // ===================== ডোম এলিমেন্ট =====================
     const sidebar = document.getElementById('sidebar');
@@ -952,6 +1050,19 @@
     const themeToggle = document.getElementById('themeToggle');
     const clearChatBtn = document.getElementById('clearChatBtn');
     const errorToast = document.getElementById('errorToast');
+    const imageUploadBtn = document.getElementById('imageUploadBtn');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+    // ===================== ইউজার আইডি =====================
+    function getUserId() {
+      let userId = localStorage.getItem('userId');
+      if (!userId) {
+        userId = crypto.randomUUID ? crypto.randomUUID() : 'user-' + Date.now() + '-' + Math.random();
+        localStorage.setItem('userId', userId);
+      }
+      return userId;
+    }
 
     // ===================== ইউটিলিটি ফাংশন =====================
     function formatMarkdown(text) {
@@ -1022,10 +1133,43 @@
       }, 5000);
     }
 
+    // ===================== ইমেজ হ্যান্ডলার =====================
+    function handleImageUpload(file) {
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        currentImage = event.target.result;
+        showImagePreview(currentImage);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showImagePreview(imageData) {
+      imagePreviewContainer.innerHTML = `
+        <div class="image-preview">
+          <img src="${imageData}" alt="আপলোড করা ছবি">
+          <button class="remove-image" onclick="removeImage()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+    }
+
+    window.removeImage = function() {
+      currentImage = null;
+      imagePreviewContainer.innerHTML = '';
+      imageInput.value = '';
+    };
+
     // ===================== এপিআই ফাংশন =====================
     async function loadChats() {
       try {
-        const response = await fetch('/api/chats');
+        const response = await fetch('/api/chats', {
+          headers: {
+            'x-user-id': getUserId()
+          }
+        });
         if (!response.ok) throw new Error('Failed to load chats');
         chats = await response.json();
         renderChatList();
@@ -1039,7 +1183,10 @@
       try {
         const response = await fetch('/api/chats', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-user-id': getUserId()
+          }
         });
         if (!response.ok) throw new Error('Failed to create chat');
         const chat = await response.json();
@@ -1058,7 +1205,10 @@
       
       try {
         const response = await fetch(`/api/chats/${chatId}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'x-user-id': getUserId()
+          }
         });
         if (!response.ok) throw new Error('Failed to delete chat');
         
@@ -1082,83 +1232,46 @@
     function getSmartResponse(message) {
       const msg = message.trim().toLowerCase();
       
-      // "তোমার নাম কি?" - type questions
       if (msg.includes('তোমার নাম') || msg.includes('আপনার নাম') || 
-          msg.includes('what is your name') || msg.includes('your name')) {
-        return `আমার নাম **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট। 😊`;
+          msg.includes('what is your name') || msg.includes('your name') ||
+          msg.includes('নাম কি')) {
+        return `আমার নাম **${CONFIG.botName}**। আমি একটি স্মার্ট এআই চ্যাটবট।`;
       }
       
-      // "তোমার মালিক কে?" or "তোমার মালিকের নাম কি?"
       if (msg.includes('মালিক') || msg.includes('owner') || 
-          msg.includes('তোমার স্রষ্টা') || msg.includes('কে বানিয়েছে')) {
-        return `আমার  মালিক **${CONFIG.ownerName}**। তিনি একজন দক্ষ ডেভেলপার এবং আল-হিদায়া ওয়েব স্টুডিওর প্রতিষ্ঠাতা। 🎯`;
+          msg.includes('তোমার স্রষ্টা') || msg.includes('কে বানিয়েছে') ||
+          msg.includes('তৈরি করেছে') || msg.includes('বানিয়েছে') ||
+          msg.includes('developed') || msg.includes('created by')) {
+        return `আমি তৈরি করেছি **Al Hidaya Web Studio**। এই স্টুডিওর মালিক **${CONFIG.ownerName}**।`;
       }
       
-      // "কে তৈরি করেছে?"
-      if (msg.includes('তৈরি করেছে') || msg.includes('বানিয়েছে') || msg.includes('developed') || msg.includes('created by')) {
-        return `আমি তৈরি করেছি **${CONFIG.ownerName}** এবং **${CONFIG.developer}**-এর অধীনে। 🌟`;
-      }
-      
-      // "হ্যালো", "আসসালামু আলাইকুম" ইত্যাদি
-      if (msg.includes('হ্যালো') || msg.includes('আসসালামু') || msg.includes('سلام') || 
-          msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-        return `ওয়ালাইকুম আসসালাম! 🙏 আপনার সাথে কথা বলে খুব ভালো লাগছে। আমি ${CONFIG.botName}। কিভাবে সাহায্য করতে পারি?`;
-      }
-      
-      // "কেমন আছো?"
-      if (msg.includes('কেমন আছ') || msg.includes('how are you')) {
-        return `আলহামদুলিল্লাহ, আমি খুব ভালো আছি! 😊 আপনি কেমন আছেন?`;
-      }
-      
-      // "ধন্যবাদ", "থ্যাংক ইউ"
-      if (msg.includes('ধন্যবাদ') || msg.includes('thank')) {
-        return `আপনাকেও ধন্যবাদ! 🙏 আপনার কোনো প্রশ্ন থাকলে আমি সবসময় এখানে আছি।`;
-      }
-      
-      // "বাই", "বিদায়"
-      if (msg.includes('বাই') || msg.includes('বিদায়') || msg.includes('bye')) {
-        return `আল্লাহ হাফেজ! 🤝 আবার দেখা হবে। আপনার দিন শুভ হোক!`;
-      }
-      
-      // "কি অবস্থা?"
-      if (msg.includes('কি অবস্থা') || msg.includes('what\'s up')) {
-        return `সবকিছু ঠিকঠাক চলছে! 💫 আপনার খবর কী?`;
-      }
-      
-      // "বাংলা"
-      if (msg.includes('বাংলা') || msg.includes('bangla') || msg.includes('বাংলাদেশ')) {
-        return `বাংলা আমার প্রিয় ভাষা! 🇧🇩 আমি বাংলা এবং ইংরেজি উভয় ভাষায় উত্তর দিতে পারি।`;
-      }
-      
-      // "আমি কে?"
-      if (msg.includes('আমি কে') || msg.includes('who am i')) {
-        return `আপনি সম্ভবত একজন বিস্ময়কর মানুষ! 😊 আপনার সম্পর্কে আরও জানতে চাইলে বলতে পারেন।`;
-      }
-      
-      // "তোমার বয়স কত?"
-      if (msg.includes('বয়স') || msg.includes('age')) {
-        return `আমি একটি এআই, তাই আমার বয়স নেই! 😄 তবে আমি 2026 সালে তৈরি হয়েছি।`;
-      }
-      
-      return null; // কোনো স্মার্ট রেসপন্স না পেলে null রিটার্ন করবে
+      return null;
     }
 
     // ===================== মেসেজ সেন্ড =====================
     async function sendMessage() {
       const message = messageInput.value.trim();
-      if (!message || isProcessing || !currentChatId) return;
+      const image = currentImage;
+      
+      if (!message && !image) return;
+      if (isProcessing || !currentChatId) return;
 
       isProcessing = true;
       sendBtn.disabled = true;
       messageInput.value = '';
       autoResizeTextarea();
 
-      // ইউজার মেসেজ যোগ করুন
+      // ইউজার মেসেজ তৈরি
       const userMessage = {
         role: 'user',
-        content: message,
+        content: message || 'এই ছবিটি বিশ্লেষণ করুন',
         timestamp: new Date().toISOString()
       };
+
+      // ইউজার মেসেজে ছবি যোগ করুন (ডিসপ্লের জন্য)
+      if (image) {
+        userMessage.image = image;
+      }
       
       const chat = chats.find(c => c.id === currentChatId);
       if (chat) {
@@ -1183,11 +1296,13 @@
       scrollToBottom();
 
       try {
-        // স্মার্ট রেসপন্স চেক করুন
-        const smartResponse = getSmartResponse(message);
+        // স্মার্ট রেসপন্স চেক করুন (শুধু টেক্সটের জন্য)
+        let smartResponse = null;
+        if (message && !image) {
+          smartResponse = getSmartResponse(message);
+        }
         
         if (smartResponse) {
-          // স্মার্ট রেসপন্স পাওয়া গেলে সরাসরি দেখান
           setTimeout(() => {
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
@@ -1206,16 +1321,24 @@
             isProcessing = false;
             sendBtn.disabled = false;
             messageInput.focus();
-          }, 500); // টাইপিং ইফেক্টের জন্য সামান্য দেরি
-          
+            removeImage();
+          }, 500);
           return;
         }
 
-        // স্মার্ট রেসপন্স না পেলে API কল করুন
+        // API কল
+        const requestBody = { message: message || 'এই ছবিটি বিশ্লেষণ করুন' };
+        if (image) {
+          requestBody.image = image;
+        }
+
         const response = await fetch(`/api/chat/${currentChatId}/message`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-user-id': getUserId()
+          },
+          body: JSON.stringify(requestBody)
         });
 
         const typingEl = document.getElementById('typingIndicator');
@@ -1236,18 +1359,16 @@
         }
         
         renderChatList();
+        removeImage();
 
       } catch (error) {
         console.error('Error sending message:', error);
         const typingEl = document.getElementById('typingIndicator');
         if (typingEl) typingEl.remove();
         
-        // API ফেইল হলে স্মার্ট রেসপন্স দেখান
-        const fallbackResponse = getSmartResponse(message) || 'দুঃখিত, একটি সমস্যা হয়েছে। তবে আমি এখানে আছি আপনার সাহায্য করতে! 🤗';
-        
         const errorMsg = {
           role: 'assistant',
-          content: fallbackResponse,
+          content: 'দুঃখিত, একটি সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন। 🙏',
           timestamp: new Date().toISOString()
         };
         const chat = chats.find(c => c.id === currentChatId);
@@ -1256,7 +1377,7 @@
           renderMessages(chat.messages);
           scrollToBottom();
         }
-        showError('বার্তা পাঠাতে সমস্যা হয়েছে, তবে আমি উত্তর দিচ্ছি!');
+        showError('বার্তা পাঠাতে সমস্যা হয়েছে');
       } finally {
         isProcessing = false;
         sendBtn.disabled = false;
@@ -1291,6 +1412,7 @@
       currentChatId = chatId;
       renderMessages(chat.messages || []);
       renderChatList();
+      removeImage();
       
       if (window.innerWidth <= 768) {
         sidebar.classList.remove('open');
@@ -1304,7 +1426,7 @@
           <div class="welcome-screen">
             <div class="logo-big"><i class="fas fa-robot"></i></div>
             <h2>Bengal AI</h2>
-            <p>আমি একটি স্মার্ট এআই চ্যাটবট। বাংলা ও ইংরেজিতে কথা বলতে পারি। আপনার যেকোনো প্রশ্ন করুন! 💬</p>
+            <p>আমি একটি স্মার্ট এআই চ্যাটবট। বাংলা ও ইংরেজিতে কথা বলতে পারি। ছবি আপলোড করে বিশ্লেষণ করাতে পারি! 💬</p>
             <div class="feature-grid">
               <div class="feature-item">
                 <i class="fas fa-language"></i>
@@ -1315,8 +1437,8 @@
                 <span>স্মার্ট উত্তর</span>
               </div>
               <div class="feature-item">
-                <i class="fas fa-code"></i>
-                <span>কোড সাপোর্ট</span>
+                <i class="fas fa-image"></i>
+                <span>ছবি রিডিং</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-history"></i>
@@ -1361,11 +1483,23 @@
       const content = document.createElement('div');
       content.className = 'message-content';
       
-      if (message.role === 'assistant') {
-        content.innerHTML = formatMarkdown(message.content);
-      } else {
-        content.textContent = message.content;
+      let contentHtml = '';
+      
+      // ইউজারের ছবি দেখান (যদি থাকে)
+      if (message.role === 'user' && message.image) {
+        contentHtml += `<img src="${message.image}" alt="আপলোড করা ছবি">`;
       }
+      
+      // টেক্সট কন্টেন্ট
+      if (message.content) {
+        if (message.role === 'assistant') {
+          contentHtml += formatMarkdown(message.content);
+        } else {
+          contentHtml += message.content;
+        }
+      }
+      
+      content.innerHTML = contentHtml;
       
       div.appendChild(avatar);
       div.appendChild(content);
@@ -1412,6 +1546,17 @@
       });
       themeToggle.addEventListener('click', toggleTheme);
       clearChatBtn.addEventListener('click', clearCurrentChat);
+      
+      // ইমেজ আপলোড
+      imageUploadBtn.addEventListener('click', () => {
+        imageInput.click();
+      });
+      
+      imageInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleImageUpload(e.target.files[0]);
+        }
+      });
       
       document.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
