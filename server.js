@@ -13,6 +13,70 @@ if (!fs.existsSync(CHATS_DIR)) {
   fs.mkdirSync(CHATS_DIR);
 }
 
+// ===== মাল্টি-টোকেন সিস্টেম =====
+// সব Token সংগ্রহ করুন
+const ALL_TOKENS = [];
+for (let i = 1; i <= 10; i++) {
+  const token = process.env[`TOKEN${i}`];
+  if (token && token.startsWith('ghp_')) {
+    ALL_TOKENS.push(token);
+  }
+}
+
+// ডিফল্ট Token (যদি কোনো TOKEN1-10 না থাকে)
+if (ALL_TOKENS.length === 0 && process.env.OPENAI_API_KEY) {
+  ALL_TOKENS.push(process.env.OPENAI_API_KEY);
+}
+
+console.log(`📡 Loaded ${ALL_TOKENS.length} GitHub tokens`);
+
+let currentTokenIndex = 0;
+let tokenErrorCount = {};
+
+// Token রোটেট ফাংশন
+function getNextToken() {
+  if (ALL_TOKENS.length === 0) {
+    throw new Error('No GitHub tokens available!');
+  }
+  
+  // ৫ বার চেষ্টা করুন
+  for (let attempt = 0; attempt < ALL_TOKENS.length * 2; attempt++) {
+    const token = ALL_TOKENS[currentTokenIndex];
+    currentTokenIndex = (currentTokenIndex + 1) % ALL_TOKENS.length;
+    
+    // যদি এই Token-এ বেশি Error না হয়
+    if (!tokenErrorCount[token] || tokenErrorCount[token] < 3) {
+      return token;
+    }
+  }
+  
+  // সব Token Error থাকলে প্রথমটি ব্যবহার করুন
+  currentTokenIndex = 0;
+  return ALL_TOKENS[0];
+}
+
+// Token Error রিপোর্ট
+function reportTokenError(token) {
+  if (!tokenErrorCount[token]) {
+    tokenErrorCount[token] = 0;
+  }
+  tokenErrorCount[token]++;
+  console.log(`⚠️ Token error count: ${tokenErrorCount[token]} for token: ${token.slice(0, 10)}...`);
+  
+  // ৫ বার Error হলে Token রিসেট করুন
+  if (tokenErrorCount[token] >= 5) {
+    console.log(`🔄 Resetting error count for token: ${token.slice(0, 10)}...`);
+    tokenErrorCount[token] = 0;
+  }
+}
+
+// Token সফল হলে Error কাউন্ট রিসেট
+function reportTokenSuccess(token) {
+  if (tokenErrorCount[token]) {
+    tokenErrorCount[token] = 0;
+  }
+}
+
 function getUserId(req) {
   let userId = req.headers['x-user-id'];
   if (!userId) {
@@ -106,7 +170,7 @@ app.delete('/api/chats/:id', (req, res) => {
   }
 });
 
-// ===== Gemini API ব্যবহার করে মেসেজ সেন্ড =====
+// ===== মাল্টি-টোকেন সহ GitHub Models API =====
 app.post('/api/chat/:id/message', async (req, res) => {
   const chatId = req.params.id;
   const { message, image } = req.body;
@@ -145,60 +209,103 @@ app.post('/api/chat/:id/message', async (req, res) => {
 
     writeUserChats(userId, chats);
 
-    // ===== Gemini API কল =====
-    const apiKey = process.env.OPENAI_API_KEY;
-    const model = process.env.OPENAI_MODEL || 'gemini-1.5-flash';
-    
-    // চ্যাট হিস্টোরি থেকে মেসেজ তৈরি
-    const contents = chats[chatIndex].messages.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }));
+    // ===== মাল্টি-টোকেন সহ API কল =====
+    const baseURL = process.env.OPENAI_BASE_URL || 'https://models.inference.ai.azure.com';
+    const model = process.env.OPENAI_MODEL || 'gpt-4o';
 
-    console.log(`📡 Calling Gemini API with model: ${model}`);
-    console.log(`📡 Messages:`, JSON.stringify(contents, null, 2).slice(0, 500) + '...');
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2000,
-          }
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Gemini API Error:', errorText);
-      throw new Error(`API error: ${response.status} - ${errorText}`);
+    // মেসেজ ফরম্যাট
+    let openaiMessages;
+    if (image) {
+      openaiMessages = [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: message || 'এই ছবিটি বিস্তারিত বর্ণনা করুন বাংলায়' },
+            { type: 'image_url', image_url: { url: image } }
+          ]
+        }
+      ];
+    } else {
+      openaiMessages = chats[chatIndex].messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
     }
 
-    const data = await response.json();
-    console.log('✅ Gemini API Response received');
-    
-    const assistantContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                            'আমি উত্তর দিতে পারছি না। আবার চেষ্টা করুন। 🙏';
+    // Token রোটেট করে চেষ্টা করুন
+    let lastError = null;
+    let usedTokens = [];
 
-    const assistantMessage = {
-      role: 'assistant',
-      content: assistantContent,
-      timestamp: new Date().toISOString()
-    };
-    chats[chatIndex].messages.push(assistantMessage);
-    writeUserChats(userId, chats);
+    for (let attempt = 0; attempt < ALL_TOKENS.length; attempt++) {
+      const token = getNextToken();
+      usedTokens.push(token.slice(0, 10) + '...');
+      
+      console.log(`🔄 Attempt ${attempt + 1}/${ALL_TOKENS.length} with token: ${token.slice(0, 10)}...`);
 
-    res.json({
-      message: assistantMessage,
-      chat: chats[chatIndex],
-    });
+      try {
+        const response = await fetch(`${baseURL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: openaiMessages,
+            stream: false,
+            temperature: 0.7,
+            max_tokens: 2000,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          const errorData = JSON.parse(errorText);
+          
+          // Rate Limit Error (429)
+          if (response.status === 429) {
+            console.log(`⚠️ Rate limit reached for token: ${token.slice(0, 10)}...`);
+            reportTokenError(token);
+            lastError = new Error(`Rate limit: ${errorData.error?.message || 'Unknown'}`);
+            continue; // পরবর্তী Token চেষ্টা করুন
+          }
+          
+          // অন্যান্য Error
+          throw new Error(`API error: ${response.status} - ${errorText}`);
+        }
+
+        // সফল!
+        reportTokenSuccess(token);
+        const data = await response.json();
+        const assistantContent = data.choices[0].message.content;
+
+        const assistantMessage = {
+          role: 'assistant',
+          content: assistantContent,
+          timestamp: new Date().toISOString()
+        };
+        chats[chatIndex].messages.push(assistantMessage);
+        writeUserChats(userId, chats);
+
+        console.log(`✅ Success with token: ${token.slice(0, 10)}...`);
+        console.log(`📡 Used tokens: ${usedTokens.join(', ')}`);
+
+        res.json({
+          message: assistantMessage,
+          chat: chats[chatIndex],
+        });
+        return;
+
+      } catch (error) {
+        console.log(`❌ Failed with token: ${token.slice(0, 10)}...`);
+        reportTokenError(token);
+        lastError = error;
+      }
+    }
+
+    // সব Token ব্যর্থ হলে
+    console.log(`❌ All tokens failed! Used: ${usedTokens.join(', ')}`);
+    throw new Error(lastError || 'All tokens failed');
 
   } catch (error) {
     console.error('❌ Chat error:', error);
@@ -220,7 +327,7 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 Using model: ${process.env.OPENAI_MODEL || 'gemini-1.5-flash'}`);
-  console.log(`📡 API Base URL: ${process.env.OPENAI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'}`);
+  console.log(`📡 Using model: ${process.env.OPENAI_MODEL || 'gpt-4o'}`);
+  console.log(`📡 Tokens loaded: ${ALL_TOKENS.length}`);
   console.log(`📁 Chats directory: ${CHATS_DIR}`);
 });
